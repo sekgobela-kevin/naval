@@ -1,0 +1,14 @@
+Flask==2.0.0
+flask-login
+flask-sqlalchemy
+spacy==3.0.6
+spacy-legacy==3.0.5
+spacy-wordnet==0.0.5
+nltk==3.3
+python-pptx==0.6.19
+python-docx==0.8.10
+pdfminer.six==20201018
+numpy==1.18.5
+beautifulsoup4
+urllib3
+-e .
