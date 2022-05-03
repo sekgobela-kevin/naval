@@ -1,6 +1,6 @@
 import unittest
-from src.crawler.text.text import Text
-from src.crawler.text.text import Section
+from src.pynavy.crawler.text.text import Text
+from src.pynavy.crawler.text.text import Section
 
 class TestText(unittest.TestCase):
     def setUp(self):

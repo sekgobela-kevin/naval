@@ -1,5 +1,5 @@
 import unittest
-from src.crawler.text.section import Section
+from src.pynavy.crawler.text.section import Section
 
 
 class TestSection(unittest.TestCase):

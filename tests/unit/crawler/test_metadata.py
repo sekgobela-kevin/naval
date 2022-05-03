@@ -1,5 +1,5 @@
 import unittest
-from src.crawler.text.metadata import Metadata
+from src.pynavy.crawler.text.metadata import Metadata
 
 
 class TestMetadata(unittest.TestCase):
