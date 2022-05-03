@@ -1,5 +1,5 @@
-from section import Section
-from metadata import Metadata
+from .section import Section
+from .metadata import Metadata
 
 class Text(Metadata):
     '''Class for representing text broken into sections'''

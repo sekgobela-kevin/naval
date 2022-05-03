@@ -1,4 +1,6 @@
-from metadata import Metadata
+import sys
+
+from .metadata import Metadata
 
 class Section(Metadata):
     '''Represents portion of text'''

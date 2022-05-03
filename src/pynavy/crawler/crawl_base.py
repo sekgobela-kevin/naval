@@ -1,5 +1,4 @@
-from unicodedata import numeric
-from text.text import Text
+from .text.text import Text
 import time
 
 class Crawl_Base(Text):
