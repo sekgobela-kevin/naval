@@ -1,10 +1,5 @@
-import helper
-# folders in src to path
-# src_to_path() add folder in src to path
-helper.src_to_path(__file__)
-
 import unittest
-from crawler.text.metadata import Metadata
+from src.crawler.text.metadata import Metadata
 
 
 class TestMetadata(unittest.TestCase):
