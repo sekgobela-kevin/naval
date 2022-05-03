@@ -1,5 +1,5 @@
 # Pynavy search
-> simple small search engine in C/C++
+> simple small search engine in Python
 ## Description
 Pynavy search is a simple search engine for searching through files and webpages with Python.
 The 'Py' come from 'Python" language with navy named from [Datanavy search](https://www.datanavy.site).
