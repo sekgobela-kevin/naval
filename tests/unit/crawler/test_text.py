@@ -1,13 +1,13 @@
 import unittest
 from src.pynavy.crawler.text.text import Text
-from src.pynavy.crawler.text.text import Section
+from src.pynavy.crawler.text.text_section import Text_Section
 
 class TestText(unittest.TestCase):
     def setUp(self):
         self.text1 = "0123456789"
         self.text2 = "Life without money is a hell"
-        self.section_obj1 = Section(self.text1, (4,5))
-        self.section_obj2 = Section(self.text2, (4,5))
+        self.section_obj1 = Text_Section(self.text1, (0,4))
+        self.section_obj2 = Text_Section(self.text2, (0,4))
 
     def test_size(self):
         text_obj = Text("source", "title")
@@ -21,23 +21,47 @@ class TestText(unittest.TestCase):
         text_obj = Text("source", "title")
         self.assertEqual(text_obj.get_title(), "title")
 
-    def test_get_start_end_indexes(self):
+    def test_create_start_indexes(self):
         text_obj = Text("source", "title")
-        start_end_indexes = text_obj.get_start_end_indexes(len(self.text1), 5)
-        self.assertEqual(start_end_indexes, [(0,5), (5,10)])
-        start_end_indexes = text_obj.get_start_end_indexes(len(self.text1), 2)
-        self.assertEqual(start_end_indexes, [(0,2), (2,4), (4,6),(6, 8), (8, 10)])
-        start_end_indexes = text_obj.get_start_end_indexes(len(self.text1)+1, 2)
-        self.assertEqual(start_end_indexes, [(0,2), (2,4), (4,6),(6, 8), 
-            (8, 10), (10, 11)]
+        start_indexes = text_obj.create_start_indexes(len(self.text1), 5)
+        self.assertEqual(start_indexes, (0,5))
+        start_indexes = text_obj.create_start_indexes(len(self.text1), 2)
+        self.assertEqual(start_indexes, (0, 2, 4, 6, 8))
+        start_indexes = text_obj.create_start_indexes(1, 2)
+        self.assertEqual(start_indexes, (0,))
+        start_indexes = text_obj.create_start_indexes(0, 2)
+        self.assertEqual(start_indexes, ())
+
+    def test_create_end_indexes(self):
+        text_obj = Text("source", "title")
+        end_indexes = text_obj.create_end_indexes(len(self.text1), 5)
+        self.assertEqual(end_indexes, (5,10))
+        end_indexes = text_obj.create_end_indexes(len(self.text1), 2)
+        self.assertEqual(end_indexes, (2, 4, 6, 8, 10))
+        end_indexes = text_obj.create_end_indexes(1, 2)
+        self.assertEqual(end_indexes, (1,))
+        end_indexes = text_obj.create_end_indexes(0, 2)
+        self.assertEqual(end_indexes, ())
+
+    def test_create_start_end_indexes(self):
+        text_obj = Text("source", "title")
+        start_end_indexes = text_obj.create_start_end_indexes(len(self.text1), 5)
+        self.assertEqual(start_end_indexes, ((0,5), (5,10)))
+        start_end_indexes = text_obj.create_start_end_indexes(len(self.text1), 2)
+        self.assertEqual(start_end_indexes, ((0,2), (2,4), (4,6),(6, 8), (8, 10)))
+        start_end_indexes = text_obj.create_start_end_indexes(len(self.text1)+1, 2)
+        self.assertEqual(start_end_indexes, ((0,2), (2,4), (4,6),(6, 8), 
+            (8, 10), (10, 11))
         )
-        with self.assertRaises(Exception):
-            text_obj.get_start_end_indexes(len(self.text1), len(self.text1)+1)
+        start_end_indexes = text_obj.create_start_end_indexes(1, 2)
+        self.assertEqual(start_end_indexes, ((0,1),))
+        start_end_indexes = text_obj.create_start_end_indexes(0, 2)
+        self.assertEqual(start_end_indexes, ())
 
     def test_create_sections(self):
         text_obj = Text("source", "title")
         sections = text_obj.create_sections(self.text1, 2)
-        start_end_indexes = [(0,2), (2,4), (4,6),(6, 8), (8, 10)]
+        start_end_indexes = ((0,2), (2,4), (4,6),(6, 8), (8, 10))
         self.assertEqual(len(sections), len(start_end_indexes))
         for i in range(len(sections)):
             start, end = start_end_indexes[i]
@@ -51,98 +75,16 @@ class TestText(unittest.TestCase):
 
     def test_add_section(self):
         text_obj = Text("source", "title")
-        section_obj = Section(self.text1, (4,6))
+        section_obj = Text_Section(self.text1, (4,6))
         self.assertEqual(text_obj.size(), 0)
         text_obj.add_section(section_obj)
         self.assertEqual(text_obj.size(), 1)
-
-    def test_get_section(self):
-        text_obj = Text("source", "title")
-        self.assertEqual(len(text_obj.get_sections()), 0)
-        text_obj.add_section(self.section_obj1)
-        self.assertEqual(len(text_obj.get_sections()), 1)
-
-    
-    def test_section_exists(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        self.assertTrue(text_obj.section_exists(lambda x: x.get_text() == self.text1))
-        self.assertFalse(text_obj.section_exists(lambda x: x.get_text() == self.text2))
-
-    def test_filter_sections(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        text_obj.add_section(self.section_obj2)
-        filtered = text_obj.filter_sections(lambda x: x.get_text() == self.text2)
-        self.assertEqual(len(filtered), 1)
-        filtered = text_obj.filter_sections(lambda x: x.get_text() == "")
-        self.assertEqual(len(filtered), 0)
-        filtered = text_obj.filter_sections(lambda x: True)
-        self.assertEqual(len(filtered), 2)
-
-    def test_get_sections(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        text_obj.add_section(self.section_obj2)
-        sections = text_obj.get_sections()
-        self.assertEqual(len(sections), 2)
-
-    def test_remove_section(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        text_obj.add_section(self.section_obj2)
-        self.assertEqual(text_obj.size(), 2)
-        text_obj.section_exists(lambda x: x.get_text() == self.text1)
-        text_obj.remove_section(lambda x: x.get_text() == self.text1)
-        self.assertEqual(text_obj.size(), 1)
-        with self.assertRaises(Exception):
-            # does not exists
-            text_obj.remove_section(lambda x: x.get_text() == "")
-
-    def test_clear(self):
-        text_obj = Text("source", "title", metadata={"keywords": ["john"],
-            "size_chars":30000})
-        text_obj.add_section(self.section_obj1)
-        self.assertEqual(text_obj.get_metadata_size(), 2)
-        self.assertEqual(text_obj.size(), 1)
-        text_obj.clear()
-        self.assertEqual(text_obj.get_metadata_size(), 0)
-        self.assertEqual(text_obj.size(), 0)
 
     def test_get_text(self):
         text_obj = Text("source", "title")
         text_obj.add_section(self.section_obj1)
         text_obj.add_section(self.section_obj2)
         self.assertEqual(text_obj.get_text(), self.text1+self.text2)
-
-
-
-    def test__contains__(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        self.assertTrue(self.section_obj1 in text_obj)
-        self.assertFalse(self.section_obj2 in text_obj)
-
-    def test__iter__(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        self.assertEqual(len(list(iter(text_obj))), 1)
-
-    def test__next__(self):
-        text_obj = Text("source", "title")
-        text_obj.add_section(self.section_obj1)
-        text_obj.add_section(self.section_obj2)
-        self.assertEqual(next(text_obj), self.section_obj1)
-        self.assertEqual(next(text_obj), self.section_obj2)
-        with self.assertRaises(StopIteration):
-            while True:
-                next(text_obj)
-
-    def test__len__(self, /):
-        text_obj = Text("source", "title")
-        self.assertEqual(len(text_obj), 0)
-        text_obj.add_section(self.section_obj1)
-        self.assertEqual(len(text_obj), 1)
 
     def __eq__(self):
         text_obj = Text("source", "title")
@@ -175,13 +117,9 @@ class TestText(unittest.TestCase):
 
     def test__hash__(self, /):
         text_obj = Text("source", "title")
-        text_obj2 = Text("source", "title_")
-        text_obj_ = Text("", "")
-        text_obj__ = Text("", "")
+        text_obj2 = Text("source2", "title")
         self.assertEqual(hash(text_obj), hash(text_obj))
         self.assertNotEqual(hash(text_obj), hash(text_obj2))
-        self.assertNotEqual(hash(text_obj_), hash(text_obj__))
 
 if __name__ == '__main__':
     unittest.main()
-

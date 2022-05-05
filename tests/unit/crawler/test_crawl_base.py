@@ -1,6 +1,5 @@
 import unittest
 from src.pynavy.crawler.crawl_base import Crawl_Base
-from src.pynavy.crawler.text.text import Section
 
 
 class TestText(unittest.TestCase):

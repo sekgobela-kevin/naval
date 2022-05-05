@@ -6,10 +6,10 @@ class Equality():
         return super().__hash__()
 
     def __eq__(self, other, /):
-        return self.__key() == other.__key()
+        return self.__key() == hash(other)
     
     def __ne__(self, other, /):
-        return self.__key() != other.__key()
+        return self.__key() != hash(other)
 
     def __hash__(self) -> int:
         return self.__key()
