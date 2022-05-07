@@ -14,12 +14,12 @@ class File_Fetch(Fetch_Base):
         super().__init__(source)
 
     @staticmethod
-    def open(source: str or io.FileIO, *args, **kwargs) -> io.FileIO:
+    def open(source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
         '''Opens file and return file object\n
         source - file object or path to file\n
         *args- optional arguments to pass to file.open()\n
         **kwagrs - optional arguments to pass to file.open()\n'''
-        if not isinstance(source, (str, io.FileIO)):
+        if not isinstance(source, (str, io.IOBase)):
             TypeError("source: should be file obj or string not ", type(source))
         if isinstance(source, str):
             return open(source,*args, **kwargs)
@@ -29,12 +29,16 @@ class File_Fetch(Fetch_Base):
     @staticmethod
     def is_source_valid(source: str) -> bool:
         '''Checks if source is valid'''
-        if not isinstance(source, (str, io.FileIO)):
+        if not isinstance(source, (str, io.IOBase)):
             TypeError("file should be file obj or string not ", type(source))
-        if File_Fetch.is_source_unknown(source):
-            # source was autotiatially created
-            # it does not have a source
+        if isinstance(source, io.IOBase):
+            # file object is valid on its own
             return True
+        elif File_Fetch.is_source_unknown(source):
+            # source was autotimatially created
+            # it was validated before it got created
+            return True
+        # if all the above fails, then source might be file path
         return os.path.isfile(source)
 
     @staticmethod

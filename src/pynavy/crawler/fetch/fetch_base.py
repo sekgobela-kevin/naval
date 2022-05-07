@@ -30,7 +30,7 @@ class Fetch_Base(Text):
         return self.file.tell() == 0
 
     @staticmethod
-    def open(source: str or io.FileIO, *args, **kwargs) -> io.FileIO:
+    def open(source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
         '''Opens file and return file object\n
         source - file object or path to file\n
         *args- optional arguments to pass to file.open()\n
@@ -58,13 +58,15 @@ class Fetch_Base(Text):
     @staticmethod
     def is_source_unknown(source: str):
         '''Checks if source was auto generated'''
+        if not isinstance(source, str):
+            TypeError("source should be string not ", type(source))
         return Fetch_Base.unknown_source_prefix in source
 
     @staticmethod
-    def get_filename(source: io.FileIO or str):
+    def get_filename(source: io.IOBase or str):
         '''Creates filename from path or file object\n
         source - file object or path to file'''
-        if not isinstance(source, (str, io.FileIO)):
+        if not isinstance(source, (str, io.IOBase)):
             TypeError("source should be file obj or string not ", type(source))
         if isinstance(source, str): 
             return source
@@ -86,7 +88,7 @@ class Fetch_Base(Text):
         # no need to fetch data is already in file
         return self.file
 
-    def request(self, *args, **kwarg) -> io.FileIO:
+    def request(self, *args, **kwarg) -> io.IOBase:
         '''Read data from file path and return file object'''
         # check if file is closed or empty
         if self.file.closed:

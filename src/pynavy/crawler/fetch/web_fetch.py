@@ -21,7 +21,7 @@ class Web_Fetch(Fetch_Base):
         self._source = url
 
     @staticmethod
-    def open(*args, **kwargs) -> io.FileIO:
+    def open(*args, **kwargs) -> io.IOBase:
         '''Opens temporary file\n
         *args- optional arguments to pass to TemporaryFile()\n
         **kwagrs - optional arguments to pass to TemporaryFile()\n'''
