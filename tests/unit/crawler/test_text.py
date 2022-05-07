@@ -13,7 +13,7 @@ class TestText(unittest.TestCase):
         text_obj = Text("source", "title")
         self.assertEqual(text_obj.size(), 0)
 
-    def test_get_title(self):
+    def test_get_source(self):
         text_obj = Text("source", "title")
         self.assertEqual(text_obj.get_source(), "source")
 
