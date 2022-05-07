@@ -1,30 +1,42 @@
+from io import FileIO
 from .text.text import Text
+from .fetch.master_fetch import Master_Fetch
+from .fetch.fetch_base import Fetch_Base
+
 import time
 
-class Crawl_Base(Text):
+class Crawl_Base(Text, Master_Fetch):
     '''Base class for crawling through resources e.g pdf files, webpages'''
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, source, section_max_size=100000, **kwarg):
+        '''
+        source - mostly url, file path or file object.
+        For file object, its path can be found with name attribute if 
+        its defined. None will result in source created automatically
+        from time.time()\n
+        section_max_size - maximum allowed section size\n
+        '''
+        # if source is string then new_source will be the same
+        # if its file object then new_source will be its name
+        # Text constructor requires only string for source not file object
+        new_source = self.create_source(source)
+        super().__init__(new_source, section_max_size=section_max_size, **kwarg)
+        # pass original source as new_source may not always point to data
+        # file fetch class do accept file object
+        self.fetch_obj = self.get_fetch_object(source)
         self.crawled = False
         self.fail = False
         self.status = 0
-
-    def is_source_valid(self, source) -> bool:
-        '''Checks if source is valid'''
-        raise NotImplementedError()
-
-    def is_source_active(self, source) -> bool:
-        '''Checks if data in source is accessible'''
-        raise NotImplementedError()
 
     def is_crawled(self) -> bool:
         '''Checks if resource was crawled'''
         return self.crawled
 
-    def crawl(self, source) -> list or str or None:
-        '''Crawls through a resource and returns text or section objects'''
-        raise NotImplementedError()
+    def parse(self, fetch_obj: Fetch_Base) -> list or str or None:
+        '''Parses fetch object into text or section objects\
+        fetch_obj - any object created from subclass of Fetch_Base.
+        Contains get_file() which returns file with fetched data'''
+        raise NotImplementedError()  
 
     def request(self, attempts=2, attempt_inteval=1) -> list:
         '''Crawls for data in source and setup resource\n
@@ -35,21 +47,21 @@ class Crawl_Base(Text):
         if not isinstance(attempt_inteval, (int, float)):
             raise TypeError("attempt_inteval should be a number(float, int) not ",
             type(attempts))
-        if self.is_source_valid(self._source):
+        if not self.is_source_valid(self._source):
             raise Exception(f"source ({self._source}) is invalid")
-        if self.is_source_active(self._source):
-            raise Exception(f"source ({self._source}) is inactive")
         # this store results of crawling
-        crawl_output = None
+        parse_output = None
         # try crawling for value in attempt
         for attempt in range(attempts):
             # check if source is active(e.g file available)
             if self.is_source_active(self._source):
-                # star crawling
-                crawl_output = self.crawl(self._source)
+                # fetch data from self._source if not fetched
+                self.fetch_obj.request()
+                # parse fetched data if available
+                parse_output = self.parse(self.fetch_obj)
                 self.crawled = True
                 # update to show that crawl passed/successful
-                if crawl_output != None:
+                if parse_output != None:
                     self.status = 200
             # update to show that source was crawled
             self.crawled = True
@@ -58,20 +70,22 @@ class Crawl_Base(Text):
                 break
             # sleep before retrying to crawl again
             time.sleep(attempt_inteval)
-        if isinstance(crawl_output, str):
+        if isinstance(parse_output, str):
             # create sections from returned string
-            self.sections = self.create_sections(crawl_output)
-        elif isinstance(crawl_output, list):
+            print(self.section_max_size)
+            self.sections = self.create_sections(parse_output, 
+            self.section_max_size)
+        elif isinstance(parse_output, list):
             # initialise section objects from returned section objects
-            self.sections = crawl_output
-        elif crawl_output == None:
+            self.sections = parse_output
+        elif parse_output == None:
             # crawling failed to return data
             self.status = 1000
             self.failed = True
         else:
             # theres problem with output of crawl(self, source)
-            raise Exception(f"crawl_output should be list, str or None not",
-            type(crawl_output))
+            raise Exception(f"parse_output should be list, str,\
+            or None not", type(parse_output))
         return self.sections.copy()
 
 
@@ -79,7 +93,7 @@ class Crawl_Base(Text):
 if __name__ == "__main__":
     import os, sys
 
-    crawl_obj = Crawl_Base("source of text", "title of resource")
+    crawl_obj = Crawl_Base(__file__, section_max_size=200)
     # read the current source file(this module)
     module_folder = os.path.dirname(__file__)
     text = open(os.path.join(module_folder, "crawl_base.py"), "r").read()
@@ -89,3 +103,4 @@ if __name__ == "__main__":
     crawl_obj.set_sections(sections)
     # print the last section object
     print(crawl_obj[-1])
+    print(crawl_obj.is_source_valid("dsd"))
