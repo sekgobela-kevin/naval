@@ -74,6 +74,17 @@ class Master_Fetch():
         return fetch_obj.fetch()
 
     @staticmethod
+    def create_source(source=None, *args, **kwargs) -> str:
+        '''Create and returns source. If file object passed as source, then
+        source is retrived from its name. If source is string then it get returned 
+        unchanged.\n
+        source - str(file path, url, etc), None or file object'''
+        if source == None:
+            return Fetch_Base.get_unknown_source()
+        else:
+            return Fetch_Base.get_filename(source)
+
+    @staticmethod
     def register_fetch_class(fetch_class: Type[Fetch_Base]) -> None:
         '''Registers class for fetching data from source'''
         if issubclass(fetch_class, Fetch_Base):
