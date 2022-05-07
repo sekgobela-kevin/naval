@@ -2,9 +2,9 @@ import unittest
 from src.pynavy.crawler.crawl_base import Crawl_Base
 
 
-class TestText(unittest.TestCase):
+class Test_Crawl_Base(unittest.TestCase):
     def setUp(self):
-        self.source = "source of text"
+        self.source = __file__
         self.title = "title of resource"
 
     def test___init__(self):
@@ -12,24 +12,14 @@ class TestText(unittest.TestCase):
         self.assertEqual(crawl_obj.get_source(), self.source)
         self.assertEqual(crawl_obj.get_title(), "")
 
-    def test_is_source_valid(self):
-        crawl_obj = Crawl_Base(self.source)
-        with self.assertRaises(NotImplementedError):
-            crawl_obj.is_source_valid(self)
-
-    def test_is_source_active(self):
-        crawl_obj = Crawl_Base(self.source)
-        with self.assertRaises(NotImplementedError):
-            crawl_obj.is_source_active(self)
-
     def test_is_crawled(self):
         crawl_obj = Crawl_Base(self.source)
         self.assertFalse(crawl_obj.is_crawled())
 
-    def test_crawl(self):
+    def test_parse(self):
         crawl_obj = Crawl_Base(self.source)
         with self.assertRaises(NotImplementedError):
-            crawl_obj.crawl(self)
+            crawl_obj.parse(self)
 
     def test_request(self):
         crawl_obj = Crawl_Base(self.source)
