@@ -1,5 +1,4 @@
 from .metadata import Metadata
-from .equality import Equality
 
 class Section(Metadata):
     '''Represents a portion e.g section of text.
@@ -9,16 +8,23 @@ class Section(Metadata):
     
     Section object should not large. If its text, it should only cover smaller
     portion.'''
-    def __init__(self, elements=[], metadata={}) -> None:
+    def __init__(self, elements=[], start_end_index=(0,0), metadata={}) -> None:
         '''elements [iterable] - items which are part of section.\n
-        elements [dict] - extra data to store on object
+        metadata [dict] - extra data to store on object
         '''
         self.elements = elements
+        self.start_end_index = start_end_index
+        self.start_index = start_end_index[0]
+        self.end_index = start_end_index[1]
+        assert self.start_index <= self.start_index, start_end_index
         super().__init__(metadata)
         # to be used with __next__() and __iter__()
         # error will be raised if self.elements is not iterable
         self.__elements_iter = iter(self.elements)
-    
+
+    def get_index(self):
+        return self.start_end_index
+
     def get_elements(self) -> str:
         '''Returns elemets of section'''
         return self.elements
@@ -46,16 +52,6 @@ class Section(Metadata):
     def __len__(self, /):
         return self.size()
 
-    # def __eq__(self, other, /):
-    #     if isinstance(other, Section):
-    #         return self.__key() == other.__key()
-    #     return NotImplemented
-    
-    # def __ne__(self, other, /):
-    #     if isinstance(other, Section):
-    #         return self.__key() != other.__key()
-    #     return NotImplemented
-
     def __bool__(self, /):
         return self.size() > 0
     
@@ -64,9 +60,6 @@ class Section(Metadata):
 
     def __contains__(self, key, /):
         return key in self.elements
-
-    # def __hash__(self):
-    #     return hash(self.__key())
 
 
 if __name__ == "__main__":

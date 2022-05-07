@@ -1,16 +1,9 @@
 from ...utility.section import Section
-
-class Text_Section(Section):
+from ...utility.equality import Equality
+class Text_Section(Section, Equality):
     '''Represents portion of text'''
     def __init__(self, text, start_end_index, metadata={}) -> None:
-        super().__init__(text, metadata)
-        # contains start and end(included) index of text
-        self.start_end_index = start_end_index
-        self.start_index = start_end_index[0]
-        self.end_index = start_end_index[1]
-
-    def get_index(self):
-        return self.start_end_index
+        super().__init__(text, start_end_index, metadata)
     
     def get_text(self) -> str:
         '''Returns text of section'''
@@ -25,8 +18,5 @@ class Text_Section(Section):
         start_end_indexes = (min(combined_indexes), max(combined_indexes))
         return Text_Section(text, start_end_indexes)
 
-    def __hash__(self) -> int:
+    def _key(self) -> int:
         return hash(self.get_text())
-
-    def __eq__(self, other) -> bool:
-        return self.__hash__() == hash(other)
