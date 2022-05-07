@@ -20,6 +20,9 @@ class Text(Container, Equality):
             raise TypeError(f"title should be string not ", type(title))
         if not isinstance(text, str):
             raise TypeError(f"text should be string not ", type(text))
+        if not isinstance(section_max_size, int):
+            raise TypeError(f"section_max_size should be int not ", 
+            type(section_max_size))
         if not isinstance(metadata, dict):
             raise TypeError(f"text should be dict not ", type(metadata))
 
