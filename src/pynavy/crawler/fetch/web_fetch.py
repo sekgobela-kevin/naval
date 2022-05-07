@@ -1,4 +1,5 @@
 from io import FileIO
+import urllib
 from urllib.request import urlopen
 from urllib.parse import urlparse
 import requests
@@ -31,6 +32,8 @@ class Web_Fetch(Fetch_Base):
     @staticmethod
     def is_source_valid(source: str) -> bool:
         '''Checks if source is valid'''
+        if not isinstance(source, str):
+            raise TypeError(f"source should be string not ", type(source))
         try:
             parsed = urlparse(source)
             return all([parsed.scheme, parsed.netloc])
@@ -40,18 +43,28 @@ class Web_Fetch(Fetch_Base):
     @staticmethod
     def is_source_active(source: str) -> bool:
         '''Checks if source is active'''
+        if not isinstance(source, str):
+            raise TypeError(f"source should be string not ", type(source))
         # you can perfor validation based on returned code mostly 200
-        return urlopen(source).getcode() == 200
+        try:
+            return urlopen(source).getcode() == 200
+        except urllib.error.URLError:
+            pass
+        return False
 
     @staticmethod
     def get_filename_from_url(url):
         '''Create filename from url'''
+        if not isinstance(url, str):
+            raise TypeError(f"url should be string not ", type(url))
         parsed = urlparse(url)
         filename = f"{parsed.scheme}_{parsed.netloc}_{parsed.path}"
         return filename.replace("/", "_")
 
     def fetch_to_disc(self, source: str) -> str:
         '''Read raw data from source and save to file'''
+        if not isinstance(source, str):
+            raise TypeError(f"source should be string not ", type(source))
         request = requests.get(self._source, headers=self.headers, stream=True)
         for chunk in request.iter_content(chunk_size=128):
             self.file.write(chunk)

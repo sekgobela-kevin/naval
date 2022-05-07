@@ -20,9 +20,13 @@ class File_Fetch(Fetch_Base):
         *args- optional arguments to pass to file.open()\n
         **kwagrs - optional arguments to pass to file.open()\n'''
         if not isinstance(source, (str, io.IOBase)):
-            TypeError("source: should be file obj or string not ", type(source))
+            raise TypeError("source: should be file obj or string not ", 
+            type(source))
         if isinstance(source, str):
-            return open(source,*args, **kwargs)
+            if File_Fetch.is_source_valid(source):
+                return open(source,*args, **kwargs)
+            else:
+                raise ValueError(f"source({source}) not pointing to valid file")
         # then source arg refers to file object
         return source
     
@@ -30,7 +34,7 @@ class File_Fetch(Fetch_Base):
     def is_source_valid(source: str) -> bool:
         '''Checks if source is valid'''
         if not isinstance(source, (str, io.IOBase)):
-            TypeError("file should be file obj or string not ", type(source))
+            raise TypeError("file should be file obj or string not ", type(source))
         if isinstance(source, io.IOBase):
             # file object is valid on its own
             return True
@@ -45,6 +49,11 @@ class File_Fetch(Fetch_Base):
     def is_source_active(source: str) -> bool:
         '''Checks if data in source is accessible'''
         return File_Fetch.is_source_valid(source)
+
+    def fetch_to_disc(self, source: str) -> str:
+        '''Fetch data from source to file and return file object'''
+        # no need to fetch data is already in file
+        return self.file
 
 
 if __name__ == "__main__":

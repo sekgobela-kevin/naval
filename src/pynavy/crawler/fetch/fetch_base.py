@@ -1,8 +1,7 @@
-from ..text.text import Text
 import os, sys, io
 import time
 
-class Fetch_Base(Text):
+class Fetch_Base():
     '''Base class for fetching raw data from source(url, path, etc).
     Data from source is stored in file after fetched from its source.'''
     '''Class for representing text broken into sections'''
@@ -19,9 +18,13 @@ class Fetch_Base(Text):
         '''
         self.file = self.open(source, *args, **kwargs)
         filename = self.get_filename(self.file)
-        super().__init__(filename)
+        self._source = filename
+
+    def get_source(self) -> str:
+        return self._source
 
     def get_file(self):
+        '''Returns file object kept by this object'''
         return self.file
 
     def is_empty(self):
@@ -35,7 +38,17 @@ class Fetch_Base(Text):
         source - file object or path to file\n
         *args- optional arguments to pass to file.open()\n
         **kwagrs - optional arguments to pass to file.open()\n'''
-        return NotImplementedError()
+        if not isinstance(source, (str, io.IOBase)):
+            raise TypeError("source: should be file obj or string not ", 
+            type(source))
+        if isinstance(source, str):
+            if os.path.isfile(source):
+                return open(source,*args, **kwargs)
+            else:
+                raise ValueError(f"source({source}) does not refer to file",
+                "Overide this method if source is not meant to point to file")
+        # then source arg refers to file object
+        return source
 
     @staticmethod
     def is_source_valid(source: str) -> bool:
@@ -43,7 +56,7 @@ class Fetch_Base(Text):
         raise NotImplementedError()
 
     @staticmethod
-    def is_source_active(self, source: str) -> bool:
+    def is_source_active(source: str) -> bool:
         '''Checks if data in source is accessible'''
         raise NotImplementedError()
 
@@ -86,7 +99,7 @@ class Fetch_Base(Text):
     def fetch_to_disc(self, source: str) -> str:
         '''Fetch data from source to file and return file object'''
         # no need to fetch data is already in file
-        return self.file
+        raise NotImplementedError()
 
     def request(self, *args, **kwarg) -> io.IOBase:
         '''Read data from file path and return file object'''
