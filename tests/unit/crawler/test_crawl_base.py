@@ -8,32 +8,31 @@ class TestText(unittest.TestCase):
         self.title = "title of resource"
 
     def test___init__(self):
-        crawl_obj = Crawl_Base(self.source, self.title)
+        crawl_obj = Crawl_Base(self.source)
         self.assertEqual(crawl_obj.get_source(), self.source)
-        self.assertEqual(crawl_obj.get_title(), self.title)
-        self.assertEqual(crawl_obj.get_title(), self.title)
+        self.assertEqual(crawl_obj.get_title(), "")
 
     def test_is_source_valid(self):
-        crawl_obj = Crawl_Base(self.source, self.title)
+        crawl_obj = Crawl_Base(self.source)
         with self.assertRaises(NotImplementedError):
             crawl_obj.is_source_valid(self)
 
     def test_is_source_active(self):
-        crawl_obj = Crawl_Base(self.source, self.title)
+        crawl_obj = Crawl_Base(self.source)
         with self.assertRaises(NotImplementedError):
             crawl_obj.is_source_active(self)
 
     def test_is_crawled(self):
-        crawl_obj = Crawl_Base(self.source, self.title)
+        crawl_obj = Crawl_Base(self.source)
         self.assertFalse(crawl_obj.is_crawled())
 
     def test_crawl(self):
-        crawl_obj = Crawl_Base(self.source, self.title)
+        crawl_obj = Crawl_Base(self.source)
         with self.assertRaises(NotImplementedError):
             crawl_obj.crawl(self)
 
     def test_request(self):
-        crawl_obj = Crawl_Base(self.source, self.title)
+        crawl_obj = Crawl_Base(self.source)
         # check type error raised on wrong argumets
         with self.assertRaises(TypeError):
             crawl_obj.request("")

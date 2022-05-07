@@ -36,18 +36,12 @@ class TestTextSection(unittest.TestCase):
         text_section = Text_Section(self.text1, (3,10))
         self.assertEqual(len(text_section), len(self.text1))
 
-    def __eq__(self):
+    def test_key(self):
         text_section = Text_Section(self.text1, (3,10))
-        text_section2 = Text_Section(" ", (3,4))
-        self.assertTrue(text_section == text_section)
-        self.assertFalse(text_section == text_section2)
-        self.assertTrue(text_section == self.text1)
-
-    def test__hash__(self, /):
-        text_section = Text_Section(self.text1, (3,10))
-        text_section2 = Text_Section("", (3,10))
-        self.assertNotEqual(hash(text_section), hash(text_section2))
-        self.assertEqual(hash(text_section), hash(text_section))
+        text_section2 = Text_Section(self.text2, (3,10))
+        self.assertEqual(text_section._key(), text_section._key())
+        self.assertNotEqual(text_section._key(), text_section2._key())
+        self.assertEqual(text_section._key(), hash(text_section.get_text()))
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,7 +11,11 @@ class TestSection(unittest.TestCase):
         section_obj = Section(self.text1)
         self.assertEqual(section_obj.size(), len(self.text1))
 
-    def test_get_sections(self):
+    def test_index(self):
+        section_obj = Section(self.text1, (0,5))
+        self.assertEqual(section_obj.get_index(), (0, 5))
+
+    def test_get_elements(self):
         section_obj = Section(self.text1)
         self.assertEqual(section_obj.get_elements(), self.text1)
     

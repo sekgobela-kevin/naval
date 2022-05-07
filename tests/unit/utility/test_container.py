@@ -13,26 +13,64 @@ class TestContainer(unittest.TestCase):
         container_obj = Container([self.section_obj1])
         self.assertEqual(container_obj.size(), 1)
 
+    def test_create_start_indexes(self):
+        container_obj = Container([self.section_obj1])
+        start_indexes = container_obj.create_start_indexes(len(self.text1), 5)
+        self.assertEqual(start_indexes, (0,5))
+        start_indexes = container_obj.create_start_indexes(len(self.text1), 2)
+        self.assertEqual(start_indexes, (0, 2, 4, 6, 8))
+        start_indexes = container_obj.create_start_indexes(1, 2)
+        self.assertEqual(start_indexes, (0,))
+        start_indexes = container_obj.create_start_indexes(0, 2)
+        self.assertEqual(start_indexes, ())
+
+    def test_create_end_indexes(self):
+        container_obj = Container([self.section_obj1])
+        end_indexes = container_obj.create_end_indexes(len(self.text1), 5)
+        self.assertEqual(end_indexes, (5,10))
+        end_indexes = container_obj.create_end_indexes(len(self.text1), 2)
+        self.assertEqual(end_indexes, (2, 4, 6, 8, 10))
+        end_indexes = container_obj.create_end_indexes(1, 2)
+        self.assertEqual(end_indexes, (1,))
+        end_indexes = container_obj.create_end_indexes(0, 2)
+        self.assertEqual(end_indexes, ())
+
+    def test_create_start_end_indexes(self):
+        container_obj = Container([self.section_obj1])
+        start_end_indexes = container_obj.create_start_end_indexes(len(self.text1), 5)
+        self.assertEqual(start_end_indexes, ((0,5), (5,10)))
+        start_end_indexes = container_obj.create_start_end_indexes(len(self.text1), 2)
+        self.assertEqual(start_end_indexes, ((0,2), (2,4), (4,6),(6, 8), (8, 10)))
+        start_end_indexes = container_obj.create_start_end_indexes(len(self.text1)+1, 2)
+        self.assertEqual(start_end_indexes, ((0,2), (2,4), (4,6),(6, 8), 
+            (8, 10), (10, 11))
+        )
+        start_end_indexes = container_obj.create_start_end_indexes(1, 2)
+        self.assertEqual(start_end_indexes, ((0,1),))
+        start_end_indexes = container_obj.create_start_end_indexes(0, 2)
+        self.assertEqual(start_end_indexes, ())
+
+    def test_create_sections(self):
+        container_obj = Container([self.section_obj1])
+        sections = container_obj.create_sections(self.text1, 2)
+        start_end_indexes = ((0,2), (2,4), (4,6),(6, 8), (8, 10))
+        self.assertEqual(len(sections), len(start_end_indexes))
+        for i in range(len(sections)):
+            start, end = start_end_indexes[i]
+            section = sections[i]
+            self.assertEqual(section.get_elements(), self.text1[start:end])
+
+    def test_create_section(self):
+        container_obj = Container([self.section_obj1])
+        section_obj = container_obj.create_section(self.text1, (4, 8))
+        self.assertEqual(section_obj.get_elements(), self.text1[4:8])
+
     def test_contains_sections(self):
         container_obj = Container()
         self.assertTrue(container_obj.contains_sections([self.section_obj1]))
         self.assertFalse(container_obj.contains_sections([
             self.section_obj1, "section_obj"
         ]))
-
-    def test_create_section(self):
-        container_obj = Container([self.section_obj1])
-        with self.assertRaises(NotImplementedError):
-            container_obj.create_section()
-
-    def test_create_sections(self):
-        container_obj = Container([self.section_obj1])
-        with self.assertRaises(NotImplementedError):
-            container_obj.create_sections()
-
-    def test_get_sections(self):
-        container_obj = Container([self.section_obj1])
-        self.assertEqual(container_obj.get_sections(), [self.section_obj1])
 
     def test_filter_section_qualify(self):
         container_obj = Container([self.section_obj1])
@@ -116,7 +154,13 @@ class TestContainer(unittest.TestCase):
         for i in range(len(sections)):
             self.assertEqual(sections[i].get_elements(), text_list[i])
 
-
+    def test_set_sections(self):
+        container_obj = Container()
+        self.assertEqual(container_obj.size(), 0)
+        container_obj.set_sections([self.section_obj1, self.section_obj2])
+        self.assertEqual(container_obj.size(), 2)
+        with self.assertRaises(TypeError):
+            container_obj.set_sections("sections")
 
     def test__contains__(self):
         container_obj = Container()
