@@ -1,14 +1,18 @@
-Flask==2.0.0
-flask-login
-flask-sqlalchemy
-spacy==3.0.6
-spacy-legacy==3.0.5
-spacy-wordnet==0.0.5
-nltk==3.3
-python-pptx==0.6.19
-python-docx==0.8.10
-pdfminer.six==20201018
-numpy==1.18.5
-beautifulsoup4
+# text proccessing
+spacy
+spacy-legacy
+spacy-wordnet
+nltk
+
+# crawler(fetch data)
 urllib3
+
+# crawler(parse data)
+beautifulsoup4
+python-pptx
+python-docx
+pdfminer.six
+
+# dont what it does
+# has to do with pip
 -e .
