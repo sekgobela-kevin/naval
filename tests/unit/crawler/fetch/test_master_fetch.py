@@ -14,7 +14,7 @@ class Test_Master_Fetch(unittest.TestCase):
         self.url5 = "www.google.com"
         self.file_path = __file__ 
         self.file_path2 = "/not_exists/file.txt" 
-        self.file_obj = tempfile.TemporaryFile()
+        self.file_obj = open(__file__, 'rb')
 
         # register fetch classes
         # dont remove this
@@ -110,9 +110,8 @@ class Test_Master_Fetch(unittest.TestCase):
         # valid string source is returned unchanged
         self.assertEqual(Master_Fetch.get_source(self.url), self.url)
         self.assertEqual(Master_Fetch.get_source(__file__), __file__)
-        file_obj = Master_Fetch.get_file(__file__)
         # file name of file object should be retured
-        self.assertEqual(Master_Fetch.get_source(file_obj), __file__)
+        self.assertEqual(Master_Fetch.get_source(self.file_obj), __file__)
         with self.assertRaises(Exception):
             self.assertEqual(Master_Fetch.get_source(""), "")
 

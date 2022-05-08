@@ -16,11 +16,17 @@ class Test_Web_Fetch(unittest.TestCase):
         self.fetch_obj = Web_Fetch(self.url)
 
     def test_open(self):
-        # argumets arent validated as they are never used
         # this should only create and return file object
-        self.assertIsInstance(Web_Fetch.open(self.url), IOBase)
-        self.assertIsInstance(Web_Fetch.open(self.url2), IOBase)
-        self.assertIsInstance(Web_Fetch.open(334), IOBase)
+        temp_file = Web_Fetch.open(self.url)
+        self.assertIsInstance(temp_file, IOBase)
+        temp_file.close()
+        temp_file = Web_Fetch.open(self.url2)
+        self.assertIsInstance(temp_file, IOBase)
+        temp_file.close()
+        # argumets arent validated as they are never used
+        temp_file = Web_Fetch.open(334)
+        self.assertIsInstance(temp_file, IOBase)
+        temp_file.close()
 
     def test_is_source_valid(self):
         # both should be valid, they are valid urls

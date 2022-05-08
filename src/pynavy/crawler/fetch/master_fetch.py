@@ -1,4 +1,5 @@
 from io import FileIO
+
 from typing import Set, Type
 from black import List
 
@@ -44,7 +45,7 @@ class Master_Fetch():
     def fetch_class_exists(source: str) -> bool:
         '''Checks if fetch class for source exists\n
         source - used for locating and fetching data(e.g file path, url)'''
-        return Master_Fetch.is_source_active(source)
+        return Master_Fetch.is_source_valid(source)
 
     @staticmethod
     def get_fetch_class(source: str) -> Type[Fetch_Base]:
@@ -68,17 +69,18 @@ class Master_Fetch():
 
     @staticmethod
     def get_file(source: str, *args, **kwargs) -> FileIO:
-        '''Returns file object from source(may be empty)\n
+        '''Returns temporary file object from source\n
         source - used for locating and fetching data(e.g file path, url)'''
         fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
-        return fetch_obj.get_file()
+        return fetch_obj.get_file_copy()
 
     @staticmethod
     def fetch_to_disc(source: str, *args, **kwargs) -> FileIO:
         '''Fetches data from source and store to file\n
         source - used for locating and fetching data(e.g file path, url)'''
         fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
-        return fetch_obj.fetch_to_disc(source, *args, **kwargs)
+        fetch_obj.fetch_to_disc(source, *args, **kwargs)
+        return fetch_obj.get_file_copy()
 
     @staticmethod
     def fetch(source: str, *args, **kwargs) -> str or bytes:
@@ -130,6 +132,7 @@ class Master_Fetch():
 
     @staticmethod
     def deregister_fetch_classes():
+        '''Deregisters fetch class'''
         Master_Fetch.fetch_classes.clear()
 
 # register fetch classes

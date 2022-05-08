@@ -12,6 +12,11 @@ class File_Fetch(Fetch_Base):
         **kwagrs - optional arguments to pass to file.open()\n
         '''
         super().__init__(source)
+        # get string source in case source is file object
+        # super().__init__() will set file object as source
+        # this line will extract name of file object as
+        # if it fails then unkown source get created from timestamp
+        self._source = self.get_filename(source)
 
     @staticmethod
     def open(source: str or io.IOBase, *args, **kwargs) -> io.IOBase:

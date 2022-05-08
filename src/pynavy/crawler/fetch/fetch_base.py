@@ -1,5 +1,7 @@
 import os, sys, io
 import time
+import tempfile
+import shutil
 
 class Fetch_Base():
     '''Base class for fetching raw data from source(url, path, etc).
@@ -16,16 +18,24 @@ class Fetch_Base():
         *args- optional arguments to pass to file.open()\n
         **kwagrs - optional arguments to pass to file.open()\n
         '''
-        self.file = self.open(source, *args, **kwargs)
-        filename = self.get_filename(self.file)
-        self._source = filename
+        self._source = source
+        self.file = self.open(source, mode="rb", *args, **kwargs)
 
     def get_source(self) -> str:
         return self._source
 
     def get_file(self):
         '''Returns file object kept by this object'''
+        self.file.seek(0)
         return self.file
+
+    def get_file_copy(self):
+        '''Returns copy of file kept by the object'''
+        # its contents are copied to temp file
+        temp_file = tempfile.TemporaryFile(mode='w+b')
+        shutil.copyfileobj(self.file, temp_file)
+        temp_file.seek(0)
+        return temp_file
 
     def is_empty(self):
         '''Checks if underlying file object is empty'''
@@ -116,4 +126,7 @@ class Fetch_Base():
 
     def close(self):
         '''Closes file opened by the object'''
+        self.file.close()
+
+    def __del__(self):
         self.file.close()

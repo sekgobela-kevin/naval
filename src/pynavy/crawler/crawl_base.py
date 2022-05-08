@@ -11,16 +11,9 @@ class Crawl_Base(Text):
     def __init__(self, source, section_max_size=100000, **kwarg):
         '''
         source - mostly url, file path or file object.
-        For file object, its path can be found with name attribute if 
-        its defined. None will result in source created automatically
-        from time.time()\n
         section_max_size - maximum allowed section size\n
         '''
-        # if source is string then new_source will be the same
-        # if its file object then new_source will be its name
-        # Text constructor requires only string for source not file object
-        new_source = Master_Fetch.get_source(source)
-        super().__init__(new_source, section_max_size=section_max_size, **kwarg)
+        super().__init__(source, section_max_size=section_max_size, **kwarg)
         # pass original source as new_source may not always point to data
         # file fetch class do accept file object
         self.fetch_obj = Master_Fetch.get_fetch_object(source)
@@ -103,4 +96,3 @@ if __name__ == "__main__":
     crawl_obj.set_sections(sections)
     # print the last section object
     print(crawl_obj[-1])
-    print(crawl_obj.is_source_valid("dsd"))

@@ -14,12 +14,8 @@ class Web_Fetch(Fetch_Base):
     '''Crawls the web for data'''
 
     def __init__(self, url, *args, **kwarg):
+        super().__init__(url)
         self.headers = {'User-Agent': 'Mozilla/5.0'}
-        self.file = self.open(*args, **kwarg)
-        # create object as if its a file
-        super().__init__(self.file)
-        # set source as the orginal url instead of using file object
-        self._source = url
 
     @staticmethod
     def open(*args, **kwargs) -> io.IOBase:
