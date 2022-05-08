@@ -5,7 +5,7 @@ from .fetch.fetch_base import Fetch_Base
 
 import time
 
-class Crawl_Base(Text, Master_Fetch):
+class Crawl_Base(Text):
     '''Base class for crawling through resources e.g pdf files, webpages'''
 
     def __init__(self, source, section_max_size=100000, **kwarg):
@@ -19,11 +19,11 @@ class Crawl_Base(Text, Master_Fetch):
         # if source is string then new_source will be the same
         # if its file object then new_source will be its name
         # Text constructor requires only string for source not file object
-        new_source = self.create_source(source)
+        new_source = Master_Fetch.get_source(source)
         super().__init__(new_source, section_max_size=section_max_size, **kwarg)
         # pass original source as new_source may not always point to data
         # file fetch class do accept file object
-        self.fetch_obj = self.get_fetch_object(source)
+        self.fetch_obj = Master_Fetch.get_fetch_object(source)
         self.crawled = False
         self.fail = False
         self.status = 0
@@ -47,14 +47,14 @@ class Crawl_Base(Text, Master_Fetch):
         if not isinstance(attempt_inteval, (int, float)):
             raise TypeError("attempt_inteval should be a number(float, int) not ",
             type(attempts))
-        if not self.is_source_valid(self._source):
+        if not Master_Fetch.is_source_valid(self._source):
             raise Exception(f"source ({self._source}) is invalid")
         # this store results of crawling
         parse_output = None
         # try crawling for value in attempt
         for attempt in range(attempts):
             # check if source is active(e.g file available)
-            if self.is_source_active(self._source):
+            if Master_Fetch.is_source_active(self._source):
                 # fetch data from self._source if not fetched
                 self.fetch_obj.request()
                 # parse fetched data if available
