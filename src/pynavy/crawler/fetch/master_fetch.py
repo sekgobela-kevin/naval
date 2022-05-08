@@ -1,5 +1,5 @@
 from io import FileIO
-from typing import Type
+from typing import Set, Type
 from black import List
 
 from ..fetch.file_fetch import File_Fetch
@@ -12,36 +12,51 @@ class Master_Fetch():
     Acts as master for all fetch classes by deciding which fetch class
     source to use to fetch data. All methods are static.'''
     # stores fetch classes
-    fetch_classes: List[Type[Fetch_Base]] = []
+    fetch_classes: Set[Type[Fetch_Base]] = set()
 
     @staticmethod
     def is_source_valid(source: str) -> bool:
         '''Checks if source is valid for any of fetch classes\n
         source - used for locating and fetching data(e.g file path, url)'''
-        return any(map(lambda x: x.is_source_valid(source), Master_Fetch.fetch_classes))
+        def callback(fetch_class):
+            # handle execption in case a source not supported
+            # Web_Fetch does not support file object
+            try:
+                return fetch_class.is_source_valid(source)
+            except(ValueError, TypeError):
+                return False
+        return any(map(callback, Master_Fetch.fetch_classes))
 
     @staticmethod
     def is_source_active(source: str) -> bool:
         '''Checks if source is active for all fetch classes\n
         source - used for locating and fetching data(e.g file path, url)'''
-        return any(map(lambda x: x.is_source_active(source), Master_Fetch.fetch_classes))
+        def callback(fetch_class):
+            # handle execption in case a source not supported
+            # Web_Fetch does not support file object
+            try:
+                return fetch_class.is_source_active(source)
+            except(ValueError, TypeError):
+                return False
+        return any(map(callback, Master_Fetch.fetch_classes))
 
     @staticmethod
     def fetch_class_exists(source: str) -> bool:
         '''Checks if fetch class for source exists\n
         source - used for locating and fetching data(e.g file path, url)'''
-        for fetch_class in Master_Fetch.fetch_classes:
-            if fetch_class.is_source_valid(source):
-                return True 
-        return False
+        return Master_Fetch.is_source_active(source)
 
     @staticmethod
     def get_fetch_class(source: str) -> Type[Fetch_Base]:
         '''returns fetch class for source if exists\n
         source - used for locating and fetching data(e.g file path, url)'''
         for fetch_class in Master_Fetch.fetch_classes:
-            if fetch_class.is_source_valid(source):
-                return fetch_class
+            # some sources arent supported by all fetch classes
+            try:
+                if fetch_class.is_source_valid(source):
+                    return fetch_class
+            except(ValueError, TypeError):
+                continue
         raise Exception(f"fetch class for source({source}) not found")
 
     @staticmethod
@@ -59,7 +74,7 @@ class Master_Fetch():
         return fetch_obj.get_file()
 
     @staticmethod
-    def fetch_to_disc(self, source: str, *args, **kwargs) -> FileIO:
+    def fetch_to_disc(source: str, *args, **kwargs) -> FileIO:
         '''Fetches data from source and store to file\n
         source - used for locating and fetching data(e.g file path, url)'''
         fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
@@ -70,28 +85,52 @@ class Master_Fetch():
         '''Fetch data from source\n
         source - used for locating and fetching data(e.g file path, url)'''
         fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
+        fetched_data = fetch_obj.fetch()
         fetch_obj.close()
-        return fetch_obj.fetch()
+        return fetched_data
 
     @staticmethod
-    def create_source(source=None, *args, **kwargs) -> str:
-        '''Create and returns source. If file object passed as source, then
-        source is retrived from its name. If source is string then it get returned 
-        unchanged.\n
+    def get_source(source, *args, **kwargs) -> str:
+        '''Returns string version of source argument. If source is file
+        then filename is returned. Urls and file paths will just get returned
+        unchanged as they are already strings and valid. Exception
+        will be raised if source argument is invalid.\n
         source - str(file path, url, etc), None or file object'''
-        if source == None:
-            return Fetch_Base.get_unknown_source()
-        else:
-            return Fetch_Base.get_filename(source)
+        fetch_object = Master_Fetch.get_fetch_object(source, *args, **kwargs)
+        fetch_object.close()
+        return fetch_object.get_source()
 
     @staticmethod
     def register_fetch_class(fetch_class: Type[Fetch_Base]) -> None:
         '''Registers class for fetching data from source'''
-        if issubclass(fetch_class, Fetch_Base):
-            TypeError(f"fetch_class({type(fetch_class)} should be subclass of \
-            Fetch_Base")
-        if fetch_class not in Master_Fetch.fetch_classes:
-            Master_Fetch.fetch_classes.append(fetch_class)
+        # fetch_class needs to inherit Fetch_Base
+        if not issubclass(fetch_class, Fetch_Base):
+            raise TypeError(f"fetch_class subclass of Fetch_Base",
+            fetch_class)
+        Master_Fetch.fetch_classes.add(fetch_class)
+    
+    @staticmethod
+    def fetch_class_registered(fetch_class: Type[Fetch_Base]) -> bool:
+        '''Checks if fetch class is registered'''
+        # fetch_class needs to inherit Fetch_Base
+        if not issubclass(fetch_class, Fetch_Base):
+            raise TypeError(f"fetch_class subclass of Fetch_Base",
+            fetch_class)
+        return fetch_class in Master_Fetch.fetch_classes
+
+    @staticmethod
+    def deregister_fetch_class(fetch_class: Type[Fetch_Base]) -> None:
+        '''Registers class for fetching data from source'''
+        # fetch_class needs to inherit Fetch_Base
+        if not issubclass(fetch_class, Fetch_Base):
+            raise TypeError(f"fetch_class subclass of Fetch_Base",
+            fetch_class)
+        if Master_Fetch.fetch_class_registered(fetch_class):
+            Master_Fetch.fetch_classes.remove(fetch_class)
+
+    @staticmethod
+    def deregister_fetch_classes():
+        Master_Fetch.fetch_classes.clear()
 
 # register fetch classes
 Master_Fetch.register_fetch_class(File_Fetch)
