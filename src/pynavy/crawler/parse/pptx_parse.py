@@ -14,14 +14,13 @@ class PPTX_Parse(Parse_Base):
         '''Return object to use when parsing fetch object contents.'''
         return pptx.Presentation(self.fetch_obj.get_file())
 
-    def get_text(self) -> str or bytes:
-        '''Retuns text version of fetch object'''
-        text_list = []
+    def text_to_file(self):
+        '''Parses text and store it to self.text_file'''
         for slide in self.doc.slides:
             for shape in slide.shapes:
                 if hasattr(shape, "text"):
-                    text_list.append(shape.text)
-        return "\n".join(text_list)
+                    self.text_file.write(shape.text+"\n")
+        return self.text_file
 
 if __name__ == "__main__":
     from ..fetch.web_fetch import Web_Fetch

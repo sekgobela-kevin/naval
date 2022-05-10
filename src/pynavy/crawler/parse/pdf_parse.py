@@ -54,35 +54,17 @@ class PDF_Parse(Parse_Base):
             # instruct interpreter to proccess the page
             interpreter.process_page(page)
 
-
-    def get_text(self) -> str or bytes:
-        print("getting text")
-        '''Retuns text version of fetch object'''
-        # string stream to store extracted html
-        output_string = BytesIO()
-        PDF_Parse._pdf_convert(output_string, self.doc, self.pdf_res_man, 
-        TextConverter)
-        return output_string.getvalue()
-
-    def get_html(self) -> str:
-        '''Retuns html version of fetch object'''
-        # string stream to store extracted html
-        output_string = BytesIO()
-        PDF_Parse._pdf_convert(output_string, self.doc, self.pdf_res_man,
-        HTMLConverter)
-        return output_string.getvalue()
-
     def text_to_file(self):
         '''Parses text and store it to file'''
-        PDF_Parse._pdf_convert(self.file, self.doc, 
+        PDF_Parse._pdf_convert(self.text_file, self.doc, 
         self.pdf_res_man, TextConverter)
-        return self.file
+        return self.text_file
 
     def html_to_file(self):
         '''Parses html and store it to file'''
-        PDF_Parse._pdf_convert(self.file, self.doc, 
+        PDF_Parse._pdf_convert(self.html_file, self.doc, 
         self.pdf_res_man, HTMLConverter)
-        return self.file
+        return self.html_file
 
 if __name__ == "__main__":
     from ..fetch.web_fetch import Web_Fetch

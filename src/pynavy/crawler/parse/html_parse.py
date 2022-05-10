@@ -14,19 +14,17 @@ class HTML_Parse(Parse_Base):
         '''Create BeautifulSoup object for parsing HTML'''
         return BeautifulSoup(self.fetch_obj.get_file(), 'html.parser')
 
+    def text_to_file(self):
+        '''Parses text and store it to self.text_file'''
+        self.text_file.write(self.doc.get_text())
+
+    def html_to_file(self):
+        '''Parses html and store it to self.html_file'''
+        self.html_file.write(self.doc.prettify(formatter="html"))
+
     def get_title(self) -> str or bytes:
         '''Returns title tag text'''
         return self.doc.title.get_text()
-
-    def get_text(self) -> str or bytes:
-        '''Retuns text version of fetch object'''
-        return self.doc.get_text()
-
-    def get_html(self) -> str:
-        '''Retuns html version of fetch object'''
-        # self.fetch_obj.fetch() could be used
-        # but it may perform request
-        return self.doc.prettify(formatter="html")
 
 if __name__ == "__main__":
     from ..fetch.web_fetch import Web_Fetch
