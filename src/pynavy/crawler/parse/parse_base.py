@@ -16,6 +16,7 @@ class Parse_Base():
         # its usually an object created by another library
         #self.doc = self.create_doc()
         self.file = self.create_file()
+        self.doc = self.create_doc()
 
     def create_file(self, *args, **kwarg) -> IOBase:
         '''Returns file object to stored parsed data'''
@@ -23,7 +24,7 @@ class Parse_Base():
     
     def create_doc(self, *args, **kwarg):
         '''Return object to use when parsing fetch object contents.'''
-        raise NotImplementedError
+        raise object
 
     def is_fetch_valid():
         '''Checks if contents of fetch object can be parsed'''

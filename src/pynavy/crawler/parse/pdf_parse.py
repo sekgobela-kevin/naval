@@ -29,19 +29,13 @@ class PDF_Parse(Parse_Base):
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)
         # specify type of doc object(type annotation)
-        print("creating doc")
-        self.doc = self.create_doc()
-        print("creating res manc")
+        self.doc: PDFDocument
         self.pdf_res_man = PDFResourceManager()
 
     def create_doc(self) -> PDFDocument:
         '''Create PDFDocument object(the object is not used)'''
         parser = PDFParser(fetch_obj.get_file())
         return PDFDocument(parser)
-
-    def get_title(self) -> None:
-        '''Returns title tag text'''
-        return None
 
     @staticmethod
     def _pdf_convert(output_string:IOBase, pdf_doc:PDFDocument, 
