@@ -1,11 +1,17 @@
 from io import IOBase
 import tempfile
+import mimetypes
+import shutil
+
 from ...utility.container import Container
 from ..fetch.fetch_base import Fetch_Base
 
 class Parse_Base():
     '''Base class for parsing fetch object into text, html or 
     container(sections)'''
+    # content type for expected fetch object
+    fetch_content_type = None
+
     def __init__(self, fetch_obj: Fetch_Base) -> None:
         '''fetch_obj - Object with data to parse. The 
         object should be created from Fetch_Base or its subclasses. For files,
@@ -21,6 +27,21 @@ class Parse_Base():
         # file object to store extracted HTML
         self.html_file = self.create_file()
 
+    @classmethod
+    def is_fetch_valid(cls, fetch_obj):
+        '''Checks if fetch object is valid. Source or bytes of 
+        fetch object may be inspected. Its not guaranteed that
+        fetch object will be parsed even if it may be valid'''
+        if not isinstance(fetch_obj, Fetch_Base):
+            err_msg = "fetch_obj is not created from Fetch_Base or its subclass"
+            raise TypeError(err_msg, type(fetch_obj))
+        if not mimetypes.inited: mimetypes.init()
+        fetch_type = mimetypes.guess_type(fetch_obj.get_source())[0]
+        if fetch_type:
+            # "in" would allow to match only 'text' in text/html
+            return cls.fetch_content_type in fetch_type
+        return False
+
     def create_file(self, *args, **kwarg) -> IOBase:
         '''Returns file object to stored parsed data'''
         return tempfile.TemporaryFile(mode="w+")
@@ -29,7 +50,7 @@ class Parse_Base():
         '''Cehcks if file object is empty'''
         file.seek(0,2)
         return file.tell() == 0
-
+    
     
     def create_doc(self, *args, **kwarg):
         '''Return object to use when parsing fetch object contents.'''
@@ -43,17 +64,30 @@ class Parse_Base():
         '''Parses html and store it to self.html_file'''
         raise NotImplementedError
 
-    def is_fetch_valid():
-        '''Checks if contents of fetch object can be parsed'''
-        raise NotImplementedError
-
-    def get_html_file(self):
+    def get_text_file(self):
         '''Returns file kept by object'''
-        return self.file
+        return self.text_file
 
     def get_html_file(self):
         '''Returns file kept by object'''
         return self.html_file
+
+    @staticmethod
+    def get_file_copy(file_obj):
+        '''Returns copy of file kept by the object'''
+        # its contents are copied to temp file
+        temp_file = tempfile.TemporaryFile(mode='w+b')
+        shutil.copyfileobj(file_obj, temp_file)
+        temp_file.seek(0)
+        return temp_file
+
+    def get_text_file_copy(self):
+        '''Returns copy file kept by object'''
+        return self.get_file_copy(self.text_file)
+
+    def get_html_file_copy(self):
+        '''Returns copy of file kept by object'''
+        return self.get_file_copy(self.html_file)
     
     def get_fetch(self):
         '''Returns fetch object'''

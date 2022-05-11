@@ -6,6 +6,9 @@ from .parse_base import Parse_Base
 
 class Text_Parse(Parse_Base):
     '''Parses text from fetch object'''
+    # fetch object with text is expected
+    fetch_content_type = "text/plain"
+
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)
         self.text_file = self.fetch_obj.get_file()

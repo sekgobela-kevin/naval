@@ -1,10 +1,15 @@
 from bs4 import BeautifulSoup
 
+from ...utility import directories
 from .parse_base import Parse_Base
+from ..fetch.fetch_base import Fetch_Base
 
 
 class HTML_Parse(Parse_Base):
     '''Parses html data from fetch object'''
+    # fetch object with html data is expected
+    fetch_content_type = "text/html"
+
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)
         # specify type of doc object(type annotation)

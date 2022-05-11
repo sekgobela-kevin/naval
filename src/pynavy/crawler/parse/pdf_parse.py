@@ -26,6 +26,9 @@ from .parse_base import Parse_Base
 
 class PDF_Parse(Parse_Base):
     '''Parses pdf data from fetch object'''
+    # fetch object with pdf is expected
+    fetch_content_type = "application/pdf"
+
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)
         # specify type of doc object(type annotation)

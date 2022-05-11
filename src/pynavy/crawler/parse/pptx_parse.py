@@ -7,6 +7,10 @@ from ..fetch.master_fetch import Master_Fetch
 
 class PPTX_Parse(Parse_Base):
     '''Parses html data from fetch object'''
+    # fetch object with pptx is expected
+    fetch_content_type = "application/vnd.openxmlformats-officedocument." +\
+    "presentationml.presentation"
+
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)
 

@@ -14,6 +14,10 @@ from ..fetch.file_fetch import File_Fetch
 
 class DOCX_Parse(Parse_Base):
     '''Parses html data from fetch object'''
+    # fetch object with pdf data is expected
+    fetch_content_type = "application/vnd.openxmlformats-officedocument" +\
+    ".wordprocessingml.document"
+
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)
         self.doc: docx.document.Document
