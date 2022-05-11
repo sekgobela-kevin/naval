@@ -41,7 +41,8 @@ class Master_Parse():
                     return parse_class
             except(ValueError, TypeError):
                 continue
-        raise Exception(f"parse class for fetch_obj({fetch_obj}) not found")
+        raise Exception(f"parse class for fetch_obj with " +  
+        f"source({fetch_obj.get_source()}) not found")
 
     @staticmethod
     def get_parse_object(fetch_obj: str, *args, **kwargs) -> Parse_Base:
@@ -112,6 +113,7 @@ class Master_Parse():
         Master_Parse.parse_classes.clear()
 
 # register parse classes
+Master_Parse.register_parse_class(PDF_Parse)
 Master_Parse.register_parse_class(DOCX_Parse)
 Master_Parse.register_parse_class(PPTX_Parse)
 Master_Parse.register_parse_class(HTML_Parse)

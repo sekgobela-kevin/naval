@@ -37,7 +37,7 @@ class PDF_Parse(Parse_Base):
 
     def create_doc(self) -> PDFDocument:
         '''Create PDFDocument object(the object is not used)'''
-        parser = PDFParser(fetch_obj.get_file())
+        parser = PDFParser(self.fetch_obj.get_file())
         return PDFDocument(parser)
 
     @staticmethod

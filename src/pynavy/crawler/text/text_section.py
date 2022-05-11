@@ -12,7 +12,7 @@ class Text_Section(Section, Equality):
     
     def __add__(self, value, /):
         # combine text of sections
-        text = self.text + value.text
+        text = self.get_text() + value.get_text()
         # combine indexes by taking smallest and largest index
         combined_indexes = self.start_end_index + value.start_end_index
         start_end_indexes = (min(combined_indexes), max(combined_indexes))
@@ -20,3 +20,6 @@ class Text_Section(Section, Equality):
 
     def _key(self) -> int:
         return hash(self.get_text())
+
+    def __str__(self):
+        return self.get_text()
