@@ -29,14 +29,25 @@ class File_Fetch(Fetch_Base):
             type(source))
         if isinstance(source, str):
             if File_Fetch.is_source_valid(source):
-                return open(source,*args, **kwargs)
+                return open(source, mode="rb", *args, **kwargs)
             else:
                 raise ValueError(f"source({source}) not pointing to valid file")
         # then source arg refers to file object
         return source
+
+    @staticmethod
+    def is_file_path_valid(filePath):
+        if not os.access(filePath, os.W_OK):
+            try:
+                open(filePath, 'w').close()
+                os.unlink(filePath)
+                return True
+            except OSError:
+                return False
+        return True
     
     @staticmethod
-    def is_source_valid(source: str) -> bool:
+    def is_source_valid(source: str or io.IOBase) -> bool:
         '''Checks if source is valid'''
         if not isinstance(source, (str, io.IOBase)):
             raise TypeError("file should be file obj or string not ", type(source))
@@ -48,12 +59,16 @@ class File_Fetch(Fetch_Base):
             # it was validated before it got created
             return True
         # if all the above fails, then source might be file path
-        return os.path.isfile(source)
+        return File_Fetch.is_file_path_valid(source)
 
     @staticmethod
     def is_source_active(source: str) -> bool:
         '''Checks if data in source is accessible'''
-        return File_Fetch.is_source_valid(source)
+        # get string version of source incase source is file object
+        source = File_Fetch.get_filename(source)
+        # its possible that data in file not be readable
+        # os.access() may be better
+        return os.path.isfile(source)
 
     def fetch_to_disc(self, source: str) -> str:
         '''Fetch data from source to file and return file object'''
