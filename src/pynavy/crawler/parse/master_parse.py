@@ -1,5 +1,6 @@
-from typing import Dict, Set, Type
+from typing import Dict, List, Set, Type
 
+from ..fetch.fetch_base import Fetch_Base
 from .parse_base import Parse_Base
 from .html_parse import HTML_Parse
 from .docx_parse import DOCX_Parse
@@ -16,66 +17,72 @@ class Master_Parse():
     parse_classes: Set[Type[Parse_Base]] = set()
 
     @staticmethod
-    def is_fetch_valid(parse_obj: Parse_Base) -> bool or Parse_Base:
+    def is_fetch_valid(fetch_obj: Fetch_Base) -> bool:
         '''Checks if fetch object supported/valid based on its source.\n
-        parse_obj - parse object with data to parse'''
+        fecth_obj - fetch object with data to parse'''
         for parse_class in Master_Parse.parse_classes:
-            if parse_class.is_fetch_valid(parse_obj):
+            if parse_class.is_fetch_valid(fetch_obj):
                 return True
         return False
 
     @staticmethod
-    def parse_class_exists(parse_obj: Parse_Base) -> bool or Parse_Base:
+    def parse_class_exists(fetch_obj: Fetch_Base) -> bool or Parse_Base:
         '''Checks if parse class for parse object exists\n
-        parse_obj - parse object with data to parse'''
-        return Master_Parse.is_parse_valid(parse_obj)
+        fetch_obj - parse object with data to parse'''
+        return Master_Parse.is_parse_valid(fetch_obj)
 
     @staticmethod
-    def get_parse_class(fetch_obj: str) -> Type[Parse_Base]:
+    def get_parse_class(fetch_obj: Fetch_Base) -> Type[Parse_Base]:
         '''returns parse class for fetch_obj if exists\n
-        parse_obj - parse object with data to parse'''
+        fetch_obj - fetch object with data to parse'''
+        found_parse_classes: List[Type[Parse_Base]] = []
         for parse_class in Master_Parse.parse_classes:
             # some fetch_objs arent supported by all parse classes
             try:
                 if parse_class.is_fetch_valid(fetch_obj):
-                    return parse_class
+                    found_parse_classes.append(parse_class)
             except(ValueError, TypeError):
                 continue
-        raise Exception(f"parse class for fetch_obj with " +  
-        f"source({fetch_obj.get_source()}) not found")
+        # raise error if not fetch class found
+        if len(found_parse_classes) == 0:
+            raise Exception(f"parse class for fetch_obj with " +  
+            f"source({fetch_obj.get_source()}) not found")
+        # sort parse classes by priority value
+        found_parse_classes.sort(key=lambda x: x.priority)
+        return found_parse_classes[0]
 
     @staticmethod
-    def get_parse_object(fetch_obj: str, *args, **kwargs) -> Parse_Base:
+    def get_parse_object(fetch_obj: Fetch_Base, *args, **kwargs) -> Parse_Base:
         '''returns parse object for fetch_obj if parse class exists\n
-        parse_obj - parse object with data to parse'''
+        fetch_obj - parse object with data to parse'''
         parse_class = Master_Parse.get_parse_class(fetch_obj)
         return parse_class(fetch_obj, *args, **kwargs)
 
     @staticmethod
-    def get_text(fetch_obj: str, *args, **kwargs) -> Parse_Base:
+    def get_text(fetch_obj: Fetch_Base, *args, **kwargs) -> Parse_Base:
         '''Returns text version of fetch object\n
-        parse_obj - parse object with data to parse'''
+        fetch_obj - fetch object with data to parse'''
         parse_object = Master_Parse.get_parse_object(fetch_obj)
         return parse_object.get_text(*args, **kwargs)
 
     @staticmethod
-    def get_html(fetch_obj: str, *args, **kwargs) -> Parse_Base:
+    def get_html(fetch_obj: Fetch_Base, *args, **kwargs) -> Parse_Base:
         '''Returns html version of fetch object\n
-        parse_obj - parse object with data to parse'''
+        fetch_obj - fetch object with data to parse'''
         parse_object = Master_Parse.get_parse_object(fetch_obj)
         return parse_object.get_html(*args, **kwargs)
 
     @staticmethod
-    def get_text_file(fetch_obj: str, *args, **kwargs) -> Parse_Base:
+    def get_text_file(fetch_obj: Fetch_Base, *args, **kwargs) -> Parse_Base:
         '''Returns file with text extracted from fetch_obj\n
-        parse_obj - parse object with data to parse'''
+        fetch_obj - fetch object with data to parse'''
         parse_object = Master_Parse.get_parse_object(fetch_obj)
         return parse_object.get_text_file_copy()
 
     @staticmethod
-    def get_html_file(fetch_obj: str, *args, **kwargs) -> Parse_Base:
+    def get_html_file(fetch_obj: Fetch_Base, *args, **kwargs) -> Parse_Base:
         '''Returns file with html extracted from fetch_obj\n
-        parse_obj - parse object with data to parse'''
+        fetch_obj - fetch object with data to parse'''
         parse_object = Master_Parse.get_parse_object(fetch_obj)
         return parse_object.get_htmlfile_copy()
 
