@@ -19,7 +19,8 @@ class Fetch_Base():
         **kwagrs - optional arguments to pass to file.open()\n
         '''
         self._source = source
-        self.file = self.open(source, mode="rb", *args, **kwargs)
+        # files should always be opened in binary mode
+        self.file = self.open(source, *args, **kwargs)
 
     def get_source(self) -> str:
         return self._source
@@ -43,22 +44,12 @@ class Fetch_Base():
         return self.file.tell() == 0
 
     @staticmethod
-    def open(source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
-        '''Opens file and return file object\n
-        source - file object or path to file\n
-        *args- optional arguments to pass to file.open()\n
-        **kwagrs - optional arguments to pass to file.open()\n'''
-        if not isinstance(source, (str, io.IOBase)):
-            raise TypeError("source: should be file obj or string not ", 
-            type(source))
-        if isinstance(source, str):
-            if os.path.isfile(source):
-                return open(source,*args, **kwargs)
-            else:
-                raise ValueError(f"source({source}) does not refer to file",
-                "Overide this method if source is not meant to point to file")
-        # then source arg refers to file object
-        return source
+    def open(source: str, *args, **kwargs) -> io.IOBase:
+        '''Opens temporary file in binary mode\n
+        *args- optional arguments to pass to TemporaryFile()\n
+        **kwagrs - optional arguments to pass to TemporaryFile()\n'''
+        # files should always be opened in binary mode
+        return tempfile.TemporaryFile(mode="w+b", *args, **kwargs)
 
     @staticmethod
     def is_source_valid(source: str) -> bool:

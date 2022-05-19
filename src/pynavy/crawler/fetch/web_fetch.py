@@ -18,20 +18,12 @@ class Web_Fetch(Fetch_Base):
         self.headers = {'User-Agent': 'Mozilla/5.0'}
 
     @staticmethod
-    def open(*args, **kwargs) -> io.IOBase:
-        '''Opens temporary file\n
-        *args- optional arguments to pass to TemporaryFile()\n
-        **kwagrs - optional arguments to pass to TemporaryFile()\n'''
-        # then source arg refers to file object
-        return tempfile.TemporaryFile()
-
-    @staticmethod
     def is_source_valid(source: str) -> bool:
         '''Checks if source is valid'''
         if not isinstance(source, str):
             raise TypeError(f"source should be string not ", type(source))
         try:
-            parsed = urlparse(source)
+            parsed = urlparse(source )
             return all([parsed.scheme, parsed.netloc])
         except:
             return False
