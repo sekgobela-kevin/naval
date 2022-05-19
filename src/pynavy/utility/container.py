@@ -3,10 +3,10 @@ from .metadata import Metadata
 from .equality import Equality
 
 class Container(Metadata):
-    '''Class for representing collection of section object'''
+    '''Class for representing container of section object'''
     def __init__(self, sections=[], metadata={}) -> None:
         '''
-        sections [collection] - collection of section objects
+        sections [container] - container of section objects
         '''
         super().__init__(metadata)
         # specifies section class used by the container
@@ -19,7 +19,7 @@ class Container(Metadata):
         self.__sections_iter = iter(self.sections)
     
     def contains_sections(self, sections):
-        '''Checks if items in collection are section objects'''
+        '''Checks if items in container are section objects'''
         for section in sections:
             if not isinstance(section, self._section_class):
                 return False
@@ -29,85 +29,83 @@ class Container(Metadata):
         '''Returns total sections'''
         return len(self.sections)
 
-    def create_start_indexes(self, collection_size, section_size) -> list:
+    def create_start_indexes(self, container_size, section_size) -> list:
         '''Create end indexes\n
-        collection_size - size of collection(str, list, tuple)\n
-        section_size - size of each section to be sliced from collection'''
+        container_size - size of container(str, list, tuple)\n
+        section_size - size of each section to be sliced from container'''
         start_indexes = []
-        for index in range(0, collection_size, section_size):
+        for index in range(0, container_size, section_size):
             start_indexes.append(index) 
         return tuple(start_indexes)
 
-    def create_end_indexes(self, collection_size, section_size) -> list:
+    def create_end_indexes(self, container_size, section_size) -> list:
         '''Create start indexes\n
-        collection_size - size of collection(str, list, tuple)\n
-        section_size - size of each section to be sliced from collection
+        container_size - size of container(str, list, tuple)\n
+        section_size - size of each section to be sliced from container
         '''
         end_indexes = []
-        for index in range(section_size, collection_size, section_size):
+        for index in range(section_size, container_size, section_size):
             end_indexes.append(index) 
         # add last index if missing
-        # only if last collection_size is not zero
-        if collection_size>0 and (collection_size not in end_indexes):
-            end_indexes.append(collection_size)
+        # only if last container_size is not zero
+        if container_size>0 and (container_size not in end_indexes):
+            end_indexes.append(container_size)
         return tuple(end_indexes)
 
-    def create_start_end_indexes(self, collection_size, section_size):
+    def create_start_end_indexes(self, container_size, section_size):
         '''Creates start and end indexes
-        collection_size - size of collection in characters\n
+        container_size - size of container in characters\n
         section_size - size of each section in characters
         '''
-        assert isinstance(collection_size, int), type(collection_size)
+        assert isinstance(container_size, int), type(container_size)
         assert isinstance(section_size, int), type(section_size)
-        start_indexes = self.create_start_indexes(collection_size, section_size)
-        end_indexes = self.create_end_indexes(collection_size, section_size)
+        start_indexes = self.create_start_indexes(container_size, section_size)
+        end_indexes = self.create_end_indexes(container_size, section_size)
         start_end_indexes = map(lambda x,y: (x,y), start_indexes, end_indexes)
         return tuple(start_end_indexes)
 
-    def create_section_callback(self, sliced_collection, start_end_index):
+    def create_section_callback(self, sliced_container, start_end_index):
         '''Creates section object, called when creating section.\n
-        sliced_collection - collection after being sliced from start_end_index\n
-        start_end_index - start and end index to extract section collection\n'''
-        return self._section_class(sliced_collection, start_end_index)
+        sliced_container - container after being sliced from start_end_index\n
+        start_end_index - start and end index to extract section container\n'''
+        return self._section_class(sliced_container, start_end_index)
 
 
-    def create_section(self, collection, start_end_index):
+    def create_section(self, container, start_end_index):
         '''Create section object\n
-        collection - collection to be sliced with start_end_index\n
-        start_end_index - start and end index to extract section collection\n'''
-        assert(isinstance(collection, str))
+        container - container to be sliced with start_end_index\n
+        start_end_index - start and end index to extract section container\n'''
         assert(isinstance(start_end_index, tuple))
         start, end = start_end_index
         if start > end:
             raise Exception(f"start_index({start}) is greater than \
             end_index({end}")
         # check if start_end_index is out of range
-        if start < 0 or end > len(collection):
+        if start < 0 or end > len(container):
             raise Exception(f"start_end_index({start_end_index} out range\
-            to collection of length {len(collection)}")
-        section_collection = collection[start:end]
-        return self._section_class(section_collection, start_end_index)
+            to container of length {len(container)}")
+        section_container = container[start:end]
+        return self._section_class(section_container, start_end_index)
 
-    def create_sections(self, collection, max_section_size=None) -> list:
-        '''Create section objects from collection\n\n
-        collection - collection to create section objects from\n
+    def create_sections(self, container, max_section_size=None) -> list:
+        '''Create section objects from container\n\n
+        container - container to create section objects from\n
         max_section_size - maximum size of each section(last section may not be)'''
-        assert isinstance(collection, str)
         assert isinstance(max_section_size, int) or max_section_size == None
-        collection_length = len(collection)
+        container_length = len(container)
         # calculate max_section_size if not provided
         if max_section_size == None:
             possible_section_size = 100000
-            if collection_length > possible_section_size:
+            if container_length > possible_section_size:
                 max_section_size = possible_section_size
             else:
-                max_section_size = collection_length
-        # create start_end_indexes for collection sections
-        start_end_indexes = self.create_start_end_indexes(collection_length, 
+                max_section_size = container_length
+        # create start_end_indexes for container sections
+        start_end_indexes = self.create_start_end_indexes(container_length, 
             max_section_size)
         sections = []
         for start_end_index in start_end_indexes:
-            section_obj = self.create_section(collection, start_end_index)
+            section_obj = self.create_section(container, start_end_index)
             sections.append(section_obj)
         return sections
 
@@ -205,7 +203,7 @@ class Container(Metadata):
 
 if __name__ == "__main__":
     container_obj = Container([Section("name")])
-    collection = "abcdefghij"
+    container = "abcdefghij"
     for item in container_obj.filter_qualify_sections():
         print(item)
     print("finished", len(container_obj))
