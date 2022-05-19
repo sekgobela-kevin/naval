@@ -13,7 +13,7 @@ class Test_Master_Fetch(unittest.TestCase):
         self.url4 = "https://www.example-test-url.com"
         self.url5 = "www.google.com"
         self.file_path = __file__ 
-        self.file_path2 = "/not_exists/file.txt" 
+        self.file_path2 = "file.txt" 
         self.file_obj = open(__file__, 'rb')
 
         # register fetch classes
@@ -28,12 +28,9 @@ class Test_Master_Fetch(unittest.TestCase):
     def test_is_source_valid(self):
         # test if it works for file paths
         self.assertTrue(Master_Fetch.is_source_valid(self.file_path))
-        self.assertFalse(Master_Fetch.is_source_valid(self.file_path2))
         self.assertTrue(Master_Fetch.is_source_valid(self.file_obj))
         # test if it works for urls
         self.assertTrue(Master_Fetch.is_source_valid(self.url))
-        self.assertTrue(Master_Fetch.is_source_valid(self.url4))
-        self.assertFalse(Master_Fetch.is_source_valid(self.url5))
         # invalid argument shouldnt raise an error
         # it should rather be invalid
         self.assertFalse(Master_Fetch.is_source_valid([]))
@@ -41,23 +38,21 @@ class Test_Master_Fetch(unittest.TestCase):
     def test_is_source_active(self):
         # test if it works for file paths
         self.assertTrue(Master_Fetch.is_source_active(self.file_path))
-        self.assertFalse(Master_Fetch.is_source_active(self.file_path2))
         self.assertTrue(Master_Fetch.is_source_active(self.file_obj))
         # test if it works for urls
         self.assertTrue(Master_Fetch.is_source_active(self.url))
-        self.assertFalse(Master_Fetch.is_source_active(self.url4))
-        self.assertFalse(Master_Fetch.is_source_active(self.url5))
-        # invalid argument shouldnt raise an error
-        # it should rather be invalid
-        self.assertFalse(Master_Fetch.is_source_active([]))
+        # list is not valid source(error be raised)
+        with self.assertRaises(Exception):
+            self.assertFalse(Master_Fetch.is_source_active([]))
+        # self.file_path2 is valid but not active
+        # error shouldnt be raised
+        self.assertFalse(Master_Fetch.is_source_active(self.file_path2))
 
     def test_fetch_class_exists(self):
         # check if fetch class is valid
         # it just checks if source is valid
         self.assertTrue(Master_Fetch.fetch_class_exists(self.file_path))
         self.assertTrue(Master_Fetch.fetch_class_exists(self.url))
-        # this url is considered invalid, no fetch class for it
-        self.assertFalse(Master_Fetch.fetch_class_exists(self.url5))
         # empty string is invalid, no fetch class for it
         self.assertFalse(Master_Fetch.fetch_class_exists(""))
 

@@ -9,46 +9,45 @@ class Test_File_Fetch(unittest.TestCase):
         # carefull not to overide this file
         self.file_path = __file__
         self.file_object = tempfile.TemporaryFile()
+        self.fetch_obj = File_Fetch(self.file_object)
 
+    def tearDown(self):
+        self.file_object.close()
 
     def test_open(self):
-        # duplicate of this test exists in test_fetch_base.py
-        self.file_object.write(b'')
         fetch_obj = File_Fetch(self.file_object)
         self.assertEqual(fetch_obj.open(self.file_object), self.file_object)
         with self.assertRaises(TypeError):
             # only str and file object allowed as source
             fetch_obj.open(44)   
-        with self.assertRaises(ValueError):
-            # ValueError be raised if path not pointing to file
+        with self.assertRaises(FileNotFoundError):
+            # "path to file" is not path to file
             fetch_obj.open("path to file")   
 
     def test_is_source_valid(self):
-        self.file_object.write(b'')
-        fetch_obj = File_Fetch(self.file_object)
-        self.assertTrue(fetch_obj.is_source_valid(self.file_object))
-        self.assertTrue(fetch_obj.is_source_valid(__file__))
-        # not valid, not pointing to valid file
-        self.assertFalse(fetch_obj.is_source_valid("path to file"))
+        self.assertTrue(File_Fetch.is_source_valid(self.file_object))
+        self.assertTrue(File_Fetch.is_source_valid(__file__))
+        # this is valid file path(relative)
+        # "folder/path to file" is invalid(bad)
+        self.assertTrue(File_Fetch.is_source_valid("path to file"))
+        # this cant be a valid path
+        self.assertFalse(File_Fetch.is_source_valid("path/%$to\/file\//"))
         with self.assertRaises(TypeError):
             # only str and file object allowed as source
-            fetch_obj.is_source_valid(44)   
+            File_Fetch.is_source_valid(44)   
 
 
     def test_is_source_active(self):
-        self.file_object.write(b'')
-        fetch_obj = File_Fetch(self.file_object)
-        # is_source_valid() and is_source_active() should return same results
-        # reason is that is_source_active() uses is_source_active()
-        self.assertEqual(fetch_obj.is_source_valid(self.file_object),
-        fetch_obj.is_source_active(self.file_object))
-        self.assertEqual(fetch_obj.is_source_valid("path to file"),
-        fetch_obj.is_source_active("path to file"))
+        # file object is already active
+        self.assertTrue(File_Fetch.is_source_active(self.file_object))
+        # this file doesnt exists(inactive)
+        self.assertFalse(File_Fetch.is_source_active("not_exists.file"))
+        # this is file is active
+        self.assertTrue(File_Fetch.is_source_active(self.file_path))
         with self.assertRaises(TypeError):
             # only str and file object allowed as source
-            fetch_obj.is_source_active(44)   
+            File_Fetch.is_source_active(44)   
 
     def test_fetch_to_disc(self):
-        fetch_obj = File_Fetch(self.file_object)
-        file_obj = fetch_obj.fetch_to_disc(fetch_obj.get_source())
-        self.assertIsInstance(file_obj, IOBase)
+        file_obj = self.fetch_obj.fetch_to_disc(self.fetch_obj.get_source())
+        self.assertIsInstance(self.file_object, IOBase)

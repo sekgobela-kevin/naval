@@ -1,37 +1,32 @@
 import unittest
+from src.pynavy.crawler.fetch.fetch import Fetch
+from src.pynavy.crawler.parse.parse import Parse
 from src.pynavy.crawler.crawl_base import Crawl_Base
 
 
 class Test_Crawl_Base(unittest.TestCase):
     def setUp(self):
         self.source = __file__
-        self.title = "title of resource"
+        self.fetch_obj = Fetch(self.source)
+        self.crawl_obj = Crawl_Base(self.source)
 
     def test___init__(self):
-        crawl_obj = Crawl_Base(self.source)
-        self.assertEqual(crawl_obj.get_source(), self.source)
-        self.assertEqual(crawl_obj.get_title(), "")
+        self.crawl_obj = Crawl_Base(self.source)
+        self.assertEqual(self.crawl_obj.get_source(), self.source)
+        self.assertEqual(self.crawl_obj.get_title(), "")
 
-    def test_is_crawled(self):
-        crawl_obj = Crawl_Base(self.source)
-        self.assertFalse(crawl_obj.is_crawled())
+    def test_get_fetch(self):
+        fetch_obj = self.crawl_obj.get_fetch(self.source)
+        self.assertIsInstance(fetch_obj, Fetch)
 
-    def test_parse(self):
-        crawl_obj = Crawl_Base(self.source)
-        with self.assertRaises(NotImplementedError):
-            crawl_obj.parse(self)
+    def test_get_parse(self):
+        parse_obj = self.crawl_obj.get_parse(self.fetch_obj)
+        self.assertIsInstance(parse_obj, Parse)
 
-    def test_request(self):
-        crawl_obj = Crawl_Base(self.source)
-        # check type error raised on wrong argumets
-        with self.assertRaises(TypeError):
-            crawl_obj.request("")
-        with self.assertRaises(TypeError):
-            crawl_obj.request(3, "")
-        # NotImplementedError should be raised
-        # most methods it relies on are not implemeted
-        with self.assertRaises(NotImplementedError):
-            crawl_obj.request()
+    def test_crawl(self):
+        self.crawl_obj.crawl(self.source)
+        # crawl object should is not be empty
+        self.assertGreater(len(self.crawl_obj), 0)
 
 if __name__ == '__main__':
     unittest.main()

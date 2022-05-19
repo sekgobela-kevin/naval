@@ -64,6 +64,11 @@ class File_Fetch(Fetch_Base):
     @staticmethod
     def is_source_active(source: str) -> bool:
         '''Checks if data in source is accessible'''
+        if not isinstance(source, (str, io.IOBase)):
+            raise TypeError("file should be file obj or string not ", type(source))
+        if isinstance(source, io.IOBase):
+            # file object is active on its own
+            return True
         # get string version of source incase source is file object
         source = File_Fetch.get_filename(source)
         # its possible that data in file not be readable

@@ -10,35 +10,30 @@ class Test_Fetch_Base(unittest.TestCase):
         self.file_path = __file__
         self.file_object = tempfile.TemporaryFile()
         self.url = "www.example.com"
+        self.fetch_obj = Fetch_Base(self.file_object)
+        self.file_object.truncate(0)
+    
+    def tearDown(self):
+        self.file_object.close()
 
     def test_open(self):
-        # this test is part of fetch_file
-        self.file_object.write(b'')
-        fetch_obj = Fetch_Base(self.file_object)
-        self.assertEqual(fetch_obj.open(self.file_object), self.file_object)
-        with self.assertRaises(TypeError):
-            # only str and file object allowed as source
-            fetch_obj.open(44)   
-        with self.assertRaises(ValueError):
-            # ValueError be raised if path not pointing to file
-            fetch_obj.open("path to file")   
+        # temporary file should be opened
+        # source shouldnt even be checked
+        self.fetch_obj.open(44).close()
+        self.fetch_obj.open("not exists file.pdf").close()
 
     def test_get_file(self):
-        fetch_obj = Fetch_Base(self.file_path)
-        self.assertIsInstance(fetch_obj.get_file(), IOBase)
-        fetch_obj = Fetch_Base(self.file_object)
-        self.assertIsInstance(fetch_obj.get_file(), IOBase)
-        self.assertEqual(fetch_obj.get_file(), self.file_object)
+        # check if is instance of IOBase
+        self.assertIsInstance(self.fetch_obj.get_file(), IOBase)
 
     def test_is_empty(self):
-        self.file_object.write(b'')
-        fetch_obj = Fetch_Base(self.file_object)
-        self.assertTrue(fetch_obj.is_empty())
-        self.file_object.write(b'bytes')
-        self.assertFalse(fetch_obj.is_empty())
+        # file is empty on start of test
+        self.assertTrue(self.fetch_obj.is_empty())
+        self.fetch_obj.get_file().write(b'bytes')
+        # somethng have been written
+        self.assertFalse(self.fetch_obj.is_empty())
 
     def test_is_source_valid(self):
-        self.file_object.write(b'')
         fetch_obj = Fetch_Base(self.file_object)
         with self.assertRaises(NotImplementedError):
             fetch_obj.is_source_valid(__file__)
@@ -81,14 +76,12 @@ class Test_Fetch_Base(unittest.TestCase):
         self.assertEqual(filename, __file__)
 
     def test_fetch(self):
-        self.file_object.write(b'')
-        fetch_obj = Fetch_Base(self.file_object)
-        self.assertEqual(fetch_obj.fetch(), b'')
-        # check ifeverything from file is being fetched
-        self.file_object.write(b'bytes')
-        self.assertEqual(fetch_obj.fetch(), b'bytes')
+        self.assertEqual(self.fetch_obj.fetch(), b'')
+        # check if everything from file is being fetched
+        self.fetch_obj.get_file().write(b'bytes')
+        self.assertEqual(self.fetch_obj.fetch(), b'bytes')
         # check if optional arguments passed to file.read()
-        self.assertEqual(fetch_obj.fetch(2), b'by')
+        self.assertEqual(self.fetch_obj.fetch(2), b'by')
 
     def test_fetch_to_disc(self):
         fetch_obj = Fetch_Base(self.file_object)

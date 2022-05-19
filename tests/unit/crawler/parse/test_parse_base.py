@@ -11,17 +11,6 @@ class Test_Fetch_Base(unittest.TestCase):
         self.file_fetch = Master_Fetch.get_fetch_object(self.source)
         self.parse_obj = Parse_Base(self.file_fetch)
 
-    def test_to_text(self):
-        with self.assertRaises(NotImplementedError):
-            self.parse_obj.to_text()
-
-    def test_to_html(self):
-        with self.assertRaises(NotImplementedError):
-            self.parse_obj.to_html()
-
-    def test_to_container(self):
-        with self.assertRaises(NotImplementedError):
-            self.parse_obj.to_container()
 
 
 if __name__ == '__main__':
