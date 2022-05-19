@@ -4,6 +4,7 @@ from .text_section import Text_Section
 
 
 class Text(Container, Equality):
+    '''Class for representing text broken into sections'''
 
     def __init__(self, source, title="", text="", 
         section_max_size=100000, metadata={}) -> None:
@@ -36,6 +37,10 @@ class Text(Container, Equality):
         self.section_max_size = section_max_size
         # tell Container to use Text_Section instead of Section class
         self._section_class = Text_Section
+
+        # create sections
+        # section objects will be created from self._section_class
+        self.sections = self.create_sections(text, section_max_size)
 
     def get_title(self) -> str:
         return self._title
