@@ -32,6 +32,10 @@ class Master_Fetch():
     def is_source_active(source: str) -> bool:
         '''Checks if source is active for all fetch classes\n
         source - used for locating and fetching data(e.g file path, url)'''
+        # source could only be active if already valid
+        # so error is raised
+        if not Master_Fetch.is_source_valid(source):
+            raise Exception(f"source({source}) is invalid")
         def callback(fetch_class):
             # handle execption in case a source not supported
             # Web_Fetch does not support file object
@@ -64,6 +68,9 @@ class Master_Fetch():
     def get_fetch_object(source: str, *args, **kwargs) -> Fetch_Base:
         '''returns fetch object for source if fetch class exists\n
         source - used for locating and fetching data(e.g file path, url)'''
+        # check if source is active before creating fetch objetc
+        if not Master_Fetch.is_source_active(source):
+            raise Exception(f"source({source}) is not active")
         fetch_class = Master_Fetch.get_fetch_class(source)
         return fetch_class(source, *args, **kwargs)
 
