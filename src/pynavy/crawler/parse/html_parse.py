@@ -1,3 +1,5 @@
+import mimetypes
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
 from ...utility import directories
@@ -30,6 +32,20 @@ class HTML_Parse(Parse_Base):
     def get_title(self) -> str or bytes:
         '''Returns title tag text'''
         return self.doc.title.get_text()
+
+
+    @classmethod
+    def is_fetch_valid(cls, fetch_obj):
+        '''Checks if fetch object is valid. Source or bytes of 
+        fetch object may be inspected. Its not guaranteed that
+        fetch object will be parsed even if it may be valid'''
+        # extract the path part of url
+        url_path = urlparse(fetch_obj.get_source()).path
+        # guess mimetype from the path
+        fetch_type = mimetypes.guess_type(url_path)[0]
+        # If its None then it may be a webpage which is mostly HTML
+        # super class is also for urls with .html path or similar
+        return fetch_type == None or super().is_fetch_valid(fetch_obj)
 
 if __name__ == "__main__":
     from ..fetch.web_fetch import Web_Fetch
