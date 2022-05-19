@@ -41,8 +41,9 @@ class Parse_Base():
         return self.doc
 
     @classmethod
-    def is_source_parsable(cls, source) -> bool:
-        '''Checks if source can be parsed based on its mimetype'''
+    def is_source_parsable(cls, source: str) -> bool:
+        '''Checks if source can be parsed based on its mimetype\n
+        source - file path or url'''
         if not isinstance(source, str):
             err_msg = "source should only be string"
             raise TypeError(err_msg, type(fetch_obj))   
