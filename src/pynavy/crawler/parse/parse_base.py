@@ -11,6 +11,13 @@ class Parse_Base():
     container(sections)'''
     # content type for expected fetch object
     fetch_content_type = None
+    # the higher priority value, the lower priority
+    # parse class with lower priority is favoured when parsing
+    # text parser for html file be used if no parser for html
+    # html file is valid text which can be parsed by text parser
+    # html parser should be have priority over text parser
+    # priority can be increased by decreasing this value
+    priority = 0
 
     def __init__(self, fetch_obj: Fetch_Base) -> None:
         '''fetch_obj - Object with data to parse. The 
@@ -26,6 +33,12 @@ class Parse_Base():
         self.text_file = self.create_file()
         # file object to store extracted HTML
         self.html_file = self.create_file()
+        # files should always be opened in text mode
+        # fetch object files be opened in binary mode
+
+    def get_doc(self):
+        '''Returns underlying document object'''
+        return self.doc
 
     @classmethod
     def is_fetch_valid(cls, fetch_obj):
@@ -43,8 +56,10 @@ class Parse_Base():
         return False
 
     def create_file(self, *args, **kwarg) -> IOBase:
-        '''Returns file object to stored parsed data'''
-        return tempfile.TemporaryFile(mode="w+")
+        '''Returns file object to stored parsed data\n
+        *args, **kwarg - arguments to pass to TemporaryFile()/open()'''
+        # files should always be opened in text mode
+        return tempfile.TemporaryFile(mode="w+", *args, **kwarg)
 
     def is_file_empty(self, file):
         '''Cehcks if file object is empty'''
@@ -76,7 +91,7 @@ class Parse_Base():
     def get_file_copy(file_obj):
         '''Returns copy of file kept by the object'''
         # its contents are copied to temp file
-        temp_file = tempfile.TemporaryFile(mode='w+b')
+        temp_file = tempfile.TemporaryFile(mode='w+')
         shutil.copyfileobj(file_obj, temp_file)
         temp_file.seek(0)
         return temp_file
