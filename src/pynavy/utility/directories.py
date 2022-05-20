@@ -88,26 +88,48 @@ def get_filename(path):
     base = get_filename_extension(path)
     return os.path.splitext(base)[0]
 
-def files_paths(folder_path, format_=None):
-    '''Returns paths of files in path'''
-    #file within function name is misleading
-    files_paths = []
-    if format_!=None:
-        folder_path = os.path.join(folder_path,"*."+format_)
-    else:
-        folder_path = os.path.join(folder_path,"*")
-    for file in glob.glob(folder_path):
-        files_paths.append(file)
-    return files_paths
+def get_file_paths(folder_path: str, recursive=False):
+    '''Returns file paths in from folder\n
+    folder_path - path to folder with files\n
+    recursive - true to search subdirectories'''
+    # glob could be slow for large files
+    # its said that os.walk is much litle faster
+    file_paths = set()
+    for root, dirnames, filenames in os.walk(folder_path):
+        for filename in filenames:
+            file_paths.add(os.path.join(root, filename))
+        if not recursive:
+            break
+    return file_paths
 
-def get_folders(folder_path):
-    '''Returns folder in path'''
-    assert is_dir(folder_path), f"'{folder_path}' is not a directory/folder"
-    return [path for path in files_paths(folder_path) if is_dir(path)]
+def get_folders(path: str, recursive=False):
+    '''Returns folders from path\n
+    path - directory with folders\n
+    recursive - true to search subdirectories'''
+    # glob could be slow for large files
+    # its said that os.walk is much litle faster
+    file_paths = set()
+    for root, dirnames, filenames in os.walk(path):
+        for dirname in dirnames:
+            file_paths.add(os.path.join(root, dirname))
+        if not recursive: break
+    return file_paths
+
+def get_folders_with_files(folder_path: str, recursive=False):
+    '''Returns folders paths with files from top folder.
+    Toplevel folder is not included even if contains files\n
+    folder_path - path to folder with subdirectories\n
+    '''
+    folder_paths = set()
+    for folder in get_folders(folder_path, recursive):
+        # add folder if contains files(not recursive)
+        if get_file_paths(folder, False):
+            folder_paths.add(folder)
+    return folder_paths
 
 def delete_folder_contents(folder_path):
     '''Delete contents of folder'''
-    folder_files_paths = files_paths(folder_path)
+    folder_files_paths = get_file_paths(folder_path, True)
     for file_path in folder_files_paths:
         remove_file(file_path)
 
