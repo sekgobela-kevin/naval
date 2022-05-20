@@ -29,7 +29,8 @@ class Container(Metadata):
         '''Returns total sections'''
         return len(self.sections)
 
-    def create_start_indexes(self, container_size, section_size) -> list:
+    @classmethod
+    def create_start_indexes(cls, container_size, section_size) -> list:
         '''Create end indexes\n
         container_size - size of container(str, list, tuple)\n
         section_size - size of each section to be sliced from container'''
@@ -38,7 +39,8 @@ class Container(Metadata):
             start_indexes.append(index) 
         return tuple(start_indexes)
 
-    def create_end_indexes(self, container_size, section_size) -> list:
+    @classmethod
+    def create_end_indexes(cls, container_size, section_size) -> list:
         '''Create start indexes\n
         container_size - size of container(str, list, tuple)\n
         section_size - size of each section to be sliced from container
@@ -52,24 +54,18 @@ class Container(Metadata):
             end_indexes.append(container_size)
         return tuple(end_indexes)
 
-    def create_start_end_indexes(self, container_size, section_size):
+    @classmethod
+    def create_start_end_indexes(cls, container_size, section_size):
         '''Creates start and end indexes
         container_size - size of container in characters\n
         section_size - size of each section in characters
         '''
         assert isinstance(container_size, int), type(container_size)
         assert isinstance(section_size, int), type(section_size)
-        start_indexes = self.create_start_indexes(container_size, section_size)
-        end_indexes = self.create_end_indexes(container_size, section_size)
+        start_indexes = cls.create_start_indexes(container_size, section_size)
+        end_indexes = cls.create_end_indexes(container_size, section_size)
         start_end_indexes = map(lambda x,y: (x,y), start_indexes, end_indexes)
         return tuple(start_end_indexes)
-
-    def create_section_callback(self, sliced_container, start_end_index):
-        '''Creates section object, called when creating section.\n
-        sliced_container - container after being sliced from start_end_index\n
-        start_end_index - start and end index to extract section container\n'''
-        return self._section_class(sliced_container, start_end_index)
-
 
     def create_section(self, container, start_end_index):
         '''Create section object\n
