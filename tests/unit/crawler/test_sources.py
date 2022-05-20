@@ -3,7 +3,7 @@ import unittest
 from src.pynavy.crawler.sources import *
 
 
-class Test_Crawl_Base(unittest.TestCase):
+class Test_Sources_Methods(unittest.TestCase):
     def setUp(self) -> None:
         self.url = "https://www.example"
         self.file_url = "https://www.example/file.pdf"
@@ -50,3 +50,7 @@ class Test_Crawl_Base(unittest.TestCase):
         self.assertTrue(is_text_file("file.html"))
         self.assertTrue(is_text_file("file.txt"))
         self.assertFalse(is_text_file("file.pdf"))
+
+
+if __name__ == '__main__':
+    unittest.main()
