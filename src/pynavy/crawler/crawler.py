@@ -1,10 +1,16 @@
+from io import FileIO, IOBase
+import os
+import shutil
 from typing import List
+
 from .fetch import *
 from .parse import *
 from .text import *
 
 from ..utility.container import Container
 from . import sources
+from ..utility import directories
+
 
 def create_start_end_indexes(collection_size: int, split_size: int):
     '''
@@ -58,6 +64,51 @@ def get_start_end_indexes(sections_texts: List[str]):
         start_index += len(sections_text)
     return tuple(start_end_indexes)
 
+
+
+def download(url: str, file: str or IOBase) -> None:
+    '''Download data from url into file\n
+    url -url to webpage or web file\n
+    file - string file path or file like object'''
+    if isinstance(file, str):
+        file_obj = open(file, mode="w+b")
+    elif isinstance(file, IOBase):
+        file_obj = file
+    else:
+        err_msg = "file should be string or file object"
+        raise TypeError(err_msg, type(file))
+    # create fetch object and request for data
+    fetch_obj = Web_Fetch(url)
+    # this writes to file kept by fetch object
+    fetch_file = fetch_obj.request()
+    fetch_file.seek(0)
+    # copy fetch object file contents to requested file
+    file_obj.writelines(fetch_file)
+    file_obj.close()
+    # its expected to be slow due to multiple writing
+    # one in fetch object and one in this function
+    # it takes 2 opened files to complete the function
+
+def download_all(folder_path: str, urls: List[str]) -> None:
+    '''Download data from urls into folder\n
+    folder_path - Folder to download into\n
+    urls - list of urls'''
+    if not os.path.isdir(folder_path):
+        raise Exception(f"folder_path{folder_path} is not folder")
+    for url in urls:
+        # create filename from url
+        filename = Web_Fetch.get_filename_from_url(url)
+        # add .html to filename if not path part to url
+        # its likely to be webpage which is mostly HTML
+        if not sources.get_url_path(url):
+            filename += ".html"
+        filepath = os.path.join(folder_path, filename)
+        # download data in url and store to filepath
+        download(url, filepath)
+
+
+        
+    
 
 if __name__ == "__main__":
     print(get_start_end_indexes(create_text_sections("namename", 4)))
