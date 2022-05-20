@@ -25,30 +25,41 @@ class Crawl_Base(Text):
         # source may be file object but self._source be its path
         self.crawl(source)
 
-    def get_fetch(self, source: str or IOBase) -> Fetch_Base:
+    @classmethod
+    def get_fetch(cls, source: str or IOBase) -> Fetch_Base:
         '''Returns parse object for fetch object'''
         # Fetch class is created from composition of another parse object
         # And inheritance of Fetch_Base to give fetch object like behaviour
         # use Fetch().get_fetch() to get underlying fetch object
         return Fetch(source)
 
-    def get_parse(self, fetch_obj: Fetch_Base) -> Parse_Base:
-        '''Returns parse object for fetch object'''
+    @classmethod
+    def get_parse(cls, fetch) -> Parse_Base:
+        '''Returns parse object for fetch object or fetch source\n
+        fetch - source(url, file path, etc) or fetch object'''
+        if isinstance(fetch, Fetch_Base):
+            fetch_obj = fetch
+        else:
+            fetch_obj = cls.get_fetch(fetch)
         # Parse object is created from composition of another parse object
         # And inheritance of Parse_Base to give parse object like behaviour
         # use Parse().get_parse() to get underlying parse object
         return Parse(fetch_obj)
-
-    def crawl(self, source):
-        '''Fetch and parse data from source creating list of sections'''
-        # create fetch object
-        fetch_obj = self.get_fetch(source)
-        parse_obj = self.get_parse(fetch_obj)
+    
+    def crawl(self, parse):
+        '''Fetch and parse data from source(url, path, etc), fetch object or
+        parse object\n
+        parse - source(url, file path, etc), fetch object or parse object'''
+        if isinstance(parse, Parse_Base):
+            parse_obj = parse
+        else:
+            # create parse object from source or fetch object
+            parse_obj = self.get_parse(parse)
         self.sections = self.create_sections(parse_obj.get_text(), 
         self.section_max_size)
 
 
 if __name__ == "__main__":
-    crawl_obj = Crawl_Base("https://www.example.com/not_found.htm")
+    crawl_obj = Crawl_Base("https://www.example.com")
     # print the last section object
     print(crawl_obj[-1])
