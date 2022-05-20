@@ -3,6 +3,9 @@ import os
 import shutil
 from typing import List
 
+from .parse.parse_base import Parse_Base
+from .crawl import Crawl
+
 from .fetch import *
 from .parse import *
 from .text import *
@@ -65,26 +68,46 @@ def get_start_end_indexes(sections_texts: List[str]):
     return tuple(start_end_indexes)
 
 
+def get_file_object(file, **kwarg):
+    '''Return file object from file path or anothe file object\n
+    file - string file path or file like object\n
+    kwarg - optional keywords arguments to pass to open()'''
+    if isinstance(file, str):
+        file_obj = open(file, **kwarg)
+    elif isinstance(file, IOBase):
+        file_obj = file
+    else:
+        err_msg = "file should be str file path or file object"
+        raise TypeError(err_msg, type(file))
+    return file_obj
+
+def copy_file(src_file, dest_file):
+    '''Copy file in from src_file to dest_file\n
+    src_file - source string file path or file like object\n
+    src_file - destination string file path or file like object'''
+    # create file objects
+    src_file_obj = get_file_object(src_file)
+    dest_file_obj = get_file_object(dest_file)
+    # seek to begining of files
+    dest_file.seek(0)
+    src_file_obj.seek(0)
+    # write source file into destination
+    dest_file.writelines(src_file)
+    # close files
+    src_file.close()
+    dest_file.close()
+
+
 
 def download(url: str, file: str or IOBase) -> None:
     '''Download data from url into file\n
     url -url to webpage or web file\n
     file - string file path or file like object'''
-    if isinstance(file, str):
-        file_obj = open(file, mode="w+b")
-    elif isinstance(file, IOBase):
-        file_obj = file
-    else:
-        err_msg = "file should be string or file object"
-        raise TypeError(err_msg, type(file))
     # create fetch object and request for data
     fetch_obj = Web_Fetch(url)
     # this writes to file kept by fetch object
     fetch_file = fetch_obj.request()
-    fetch_file.seek(0)
-    # copy fetch object file contents to requested file
-    file_obj.writelines(fetch_file)
-    file_obj.close()
+    copy_file(fetch_file, file)
     # its expected to be slow due to multiple writing
     # one in fetch object and one in this function
     # it takes 2 opened files to complete the function
@@ -107,8 +130,76 @@ def download_all(folder_path: str, urls: List[str]) -> None:
         download(url, filepath)
 
 
-        
-    
+def get_fetch_object(source) -> Fetch_Base:
+    '''Returns fetch with data for source\n
+    source - url, file path or gile object, etc'''
+    # returns that fetch object if fetch is fetch object
+    # list() also returns list if passed list
+    if isinstance(source, Fetch_Base):
+        return source
+    if not Master_Fetch.fetch_class_exists(source):
+        err_msg = f"source({source}) is not fetchable(no fetch class)"
+        raise Exception(err_msg)
+    fetch_obj = Master_Fetch.get_fetch_object(source)
+    fetch_obj.request()
+    # Fetch(source) could also work
+    return fetch_obj
+
+def get_parse_object(fetch_input) -> Parse_Base:
+    '''Returns parse object for fetch object or fetch source\n
+    fetch_input - source(url, file path, etc) or fetch object'''
+    # returns the parse object if fetch_input is parse object
+    # users wont notice anything
+    # list() returns list if passed list
+    if isinstance(fetch_input, Parse_Base):
+        return fetch_input
+    else:
+        # fetch_input is source or fetch object
+        fetch_obj = get_fetch_object(fetch_input)
+    if not Master_Parse.is_fetch_valid(fetch_obj):
+        # parse class wasnt registed or problem with source extension
+        source = fetch_obj.get_source
+        err_msg = f"source({source}) is not parsable(no parse class)"
+        raise Exception(err_msg)
+    # Parse(fetch_obj) could also work
+    return Master_Parse.get_parse_object(fetch_obj)
+
+def get_crawl_object(source):
+    '''Creates and returns crawl object\n 
+    source - url, file path or gile object, etc'''
+    return Crawl(source)
+
+
+def extract_text(parse_input) -> str:
+    '''Extract text from source, fetch object or parse object\n
+    parse_input - source(url, file path, etc), fetch object or parse object'''
+    return get_parse_object(parse_input).get_text()
+
+def extract_html(parse_input) -> str:
+    '''Extract html from source, fetch object or parse object\n
+    parse_input - source(url, file path, etc), fetch object or parse object'''
+    return get_parse_object(parse_input).get_html()
+
+def extract_text_to_file(parse_input, dest_file) -> str:
+    '''Extract text from source, fetch object or parse object\n
+    parse_input - source(url, file path, etc), fetch object or parse object\n
+    dest_file - destination string file path or file like object'''
+    # this is a temporary solution
+    # get_parse_object() returns parse object with file closed
+    # __del__ was called as end of function was reached
+    # solution is to use context managers(with statement)
+    dest_file_obj = get_file_object(dest_file, mode="w")
+    dest_file_obj.write(extract_text(parse_input))
+    dest_file_obj.close()
+
+def extract_html_to_file(parse_input, dest_file) -> str:
+    '''Extract text from source, fetch object or parse object\n
+    parse_input - source(url, file path, etc), fetch object or parse object\n
+    dest_file - destination string file path or file like object'''
+    dest_file_obj = get_file_object(dest_file, mode="w")
+    dest_file_obj.write(extract_html(parse_input))
+    dest_file_obj.close()
+
 
 if __name__ == "__main__":
     print(get_start_end_indexes(create_text_sections("namename", 4)))
