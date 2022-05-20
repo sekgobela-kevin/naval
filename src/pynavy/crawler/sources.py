@@ -14,6 +14,11 @@ def is_url(source: str):
     source - resource locator e.g url, filepath'''
     return Web_Fetch.is_source_valid(source)
 
+def get_url_path(url: str) -> None or str:
+    '''Extracts path part from url\n
+    url - url of webpage or web file'''
+    return urlparse(url).path
+
 def is_local_file(source: str):
     '''Checks if source is a local file path\n
     source - resource locator e.g url, filepath'''
