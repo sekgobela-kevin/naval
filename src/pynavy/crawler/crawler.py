@@ -1,7 +1,7 @@
 from io import FileIO, IOBase
 import os
 import shutil
-from typing import List
+from typing import List, Type
 
 from .parse.parse_base import Parse_Base
 from .crawl import Crawl
@@ -11,8 +11,10 @@ from .parse import *
 from .text import *
 
 from ..utility.container import Container
-from . import sources
+from ..utility import files
 from ..utility import directories
+
+from . import sources
 
 
 def create_start_end_indexes(collection_size: int, split_size: int):
@@ -68,37 +70,6 @@ def get_start_end_indexes(sections_texts: List[str]):
     return tuple(start_end_indexes)
 
 
-def get_file_object(file, **kwarg):
-    '''Return file object from file path or anothe file object\n
-    file - string file path or file like object\n
-    kwarg - optional keywords arguments to pass to open()'''
-    if isinstance(file, str):
-        file_obj = open(file, **kwarg)
-    elif isinstance(file, IOBase):
-        file_obj = file
-    else:
-        err_msg = "file should be str file path or file object"
-        raise TypeError(err_msg, type(file))
-    return file_obj
-
-def copy_file(src_file, dest_file):
-    '''Copy file in from src_file to dest_file\n
-    src_file - source string file path or file like object\n
-    src_file - destination string file path or file like object'''
-    # create file objects
-    src_file_obj = get_file_object(src_file)
-    dest_file_obj = get_file_object(dest_file)
-    # seek to begining of files
-    dest_file.seek(0)
-    src_file_obj.seek(0)
-    # write source file into destination
-    dest_file.writelines(src_file)
-    # close files
-    src_file.close()
-    dest_file.close()
-
-
-
 def download(url: str, file: str or IOBase) -> None:
     '''Download data from url into file\n
     url -url to webpage or web file\n
@@ -107,7 +78,7 @@ def download(url: str, file: str or IOBase) -> None:
     fetch_obj = Web_Fetch(url)
     # this writes to file kept by fetch object
     fetch_file = fetch_obj.request()
-    copy_file(fetch_file, file)
+    files.copy_file(fetch_file, file)
     # its expected to be slow due to multiple writing
     # one in fetch object and one in this function
     # it takes 2 opened files to complete the function
@@ -188,17 +159,84 @@ def extract_text_to_file(parse_input, dest_file) -> str:
     # get_parse_object() returns parse object with file closed
     # __del__ was called as end of function was reached
     # solution is to use context managers(with statement)
-    dest_file_obj = get_file_object(dest_file, mode="w")
+    dest_file_obj = files.get_file_object(dest_file, mode="w")
     dest_file_obj.write(extract_text(parse_input))
-    dest_file_obj.close()
+    # close file if dest_file argument is not file like object
+    # users will manually close the file object
+    if not isinstance(dest_file, IOBase):
+        dest_file_obj.close()
 
 def extract_html_to_file(parse_input, dest_file) -> str:
     '''Extract text from source, fetch object or parse object\n
     parse_input - source(url, file path, etc), fetch object or parse object\n
     dest_file - destination string file path or file like object'''
-    dest_file_obj = get_file_object(dest_file, mode="w")
+    dest_file_obj = files.get_file_object(dest_file, mode="w")
     dest_file_obj.write(extract_html(parse_input))
-    dest_file_obj.close()
+    # close file if dest_file argument is not file like object
+    # users will manually close the file object
+    if not isinstance(dest_file, IOBase):
+        dest_file_obj.close()
+
+
+
+# register and deregister of fetch classes
+def register_fetch_class(fetch_class: Type[Fetch_Base]) -> None:
+    '''Registers class for fetching data from source\n
+    fetch_class - Fetch_Base class or its subclass'''
+    Master_Fetch.register_fetch_class(fetch_class)
+
+def fetch_class_registered(fetch_class: Type[Fetch_Base]) -> bool:
+    '''Checks if fetch class is registered\n
+    fetch_class - Fetch_Base class or its subclass'''
+    return Master_Fetch.fetch_class_registered(fetch_class)
+
+def deregister_fetch_class(fetch_class: Type[Fetch_Base]) -> None:
+    '''Registers class for fetching data from source\n
+    fetch_class - Fetch_Base class or its subclass'''
+    return Master_Fetch.deregister_fetch_class(fetch_class)
+
+def deregister_fetch_classes(fetch_classes: List[Type[Fetch_Base]]=None):
+    '''Deregisters fetch class\n
+    fetch_classes -  fetch classes to deregister, None for all'''
+    if fetch_classes == None:
+        Master_Fetch.fetch_classes.clear()
+    else:
+        # remove fetch classes in fetch_classes argument
+        Master_Fetch.fetch_classes.difference_update(fetch_classes)
+
+def get_registered_fetch_classes():
+    '''Returns refererance to registered fetch classes'''
+    return Master_Fetch.fetch_classes
+
+
+# register and deregister of parse classes
+def register_parse_class(parse_class: Type[Parse_Base]) -> None:
+    '''Registers class for parseing data from source\n
+    parse_class - Parse_Base class or its subclass'''
+    Master_Parse.register_parse_class(parse_class)
+
+def parse_class_registered(parse_class: Type[Parse_Base]) -> bool:
+    '''Checks if parse class is registered\n
+    parse_class - Parse_Base class or its subclass'''
+    return Master_Parse.parse_class_registered(parse_class)
+
+def deregister_parse_class(parse_class: Type[Parse_Base]) -> None:
+    '''Registers class for parseing data from source\n
+    parse_class - Parse_Base class or its subclass'''
+    return Master_Parse.deregister_parse_class(parse_class)
+
+def deregister_parse_classes(parse_classes: List[Type[Parse_Base]]=None):
+    '''Deregisters parse class\n
+    parse_classes -  parse classes to deregister, None for all'''
+    if parse_classes == None:
+        Master_Parse.parse_classes.clear()
+    else:
+        # remove parse classes in parse_classes argument
+        Master_Parse.parse_classes.difference_update(parse_classes)
+
+def get_registered_parse_classes():
+    '''Returns refererance to registered parse classes'''
+    return Master_Parse.parse_classes
 
 
 if __name__ == "__main__":
