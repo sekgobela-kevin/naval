@@ -1,7 +1,7 @@
 from io import IOBase
 import os
 import unittest
-from src.pynavy.utility.files import *
+from pynavy.utility.files import *
 
 class Test_File_Functions(unittest.TestCase):
     def setUp(self) -> None:

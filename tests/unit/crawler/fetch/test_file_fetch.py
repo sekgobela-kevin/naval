@@ -1,7 +1,7 @@
 from io import FileIO, IOBase
 import unittest
 import tempfile
-from src.pynavy.crawler.fetch.file_fetch import File_Fetch
+from pynavy.crawler.fetch.file_fetch import File_Fetch
 
 
 class Test_File_Fetch(unittest.TestCase):

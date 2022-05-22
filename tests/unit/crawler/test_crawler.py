@@ -1,8 +1,8 @@
 from io import BytesIO
 import os
 import unittest
-from src.pynavy.crawler.crawler import *
-from src.pynavy.utility import directories
+from pynavy.crawler.crawler import *
+from pynavy.utility import directories
 
 
 class Test_Text_Functions(unittest.TestCase):

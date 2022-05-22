@@ -1,7 +1,7 @@
 import unittest
-from src.pynavy.crawler.fetch.fetch import Fetch
-from src.pynavy.crawler.parse.parse import Parse
-from src.pynavy.crawler.crawl_base import Crawl_Base
+from pynavy.crawler.fetch.fetch import Fetch
+from pynavy.crawler.parse.parse import Parse
+from pynavy.crawler.crawl_base import Crawl_Base
 
 
 class Test_Crawl_Base(unittest.TestCase):

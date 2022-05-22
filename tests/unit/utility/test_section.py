@@ -1,5 +1,5 @@
 import unittest
-from src.pynavy.utility.section import Section
+from pynavy.utility.section import Section
 
 
 class TestSection(unittest.TestCase):

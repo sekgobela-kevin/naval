@@ -1,8 +1,8 @@
 from io import FileIO, IOBase
 import unittest
 import tempfile
-from src.pynavy.crawler.parse.parse_base import Parse_Base
-from src.pynavy.crawler.fetch.master_fetch import Master_Fetch
+from pynavy.crawler.parse.parse_base import Parse_Base
+from pynavy.crawler.fetch.master_fetch import Master_Fetch
 
 
 class Test_Fetch_Base(unittest.TestCase):

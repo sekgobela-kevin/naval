@@ -1,5 +1,5 @@
 import unittest
-from src.pynavy.utility.metadata import Metadata
+from pynavy.utility.metadata import Metadata
 
 
 class TestMetadata(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
-from src.pynavy.utility.container import Container
-from src.pynavy.utility.section import Section
+from pynavy.utility.container import Container
+from pynavy.utility.section import Section
 
 class TestContainer(unittest.TestCase):
     def setUp(self):
