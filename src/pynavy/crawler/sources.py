@@ -100,7 +100,7 @@ def is_text_file(source: str):
 def get_urls_from_text(text: str, sep:str="\n", strict=False):
     '''Extracts urls from text\n
     text - text to extract sources(urls, file paths)'''
-    pattern = r"(https:\/\/)(.*?\/)((?:[^\/]|\\\/)+?)(?:(?<!\\)\s|$)"
+    pattern = r"(https*:\/\/)(.*?\/)((?:[^\/]|\\\/)+?)(?:(?<!\\)\s|$)"
     urls = set()
     for url in re.findall(pattern, text):
         if url:
