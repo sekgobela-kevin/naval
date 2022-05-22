@@ -41,7 +41,7 @@ class Test_Text_Functions(unittest.TestCase):
 
 class Test_Download_Functions(unittest.TestCase):
     def setUp(self) -> None:
-        self.url = "https://www.example"
+        self.url = "https://www.example.com"
         self.url2 = "https://www.google.com"
         self.urls = [self.url, self.url2]
         self.folder_path = self.__class__.folder_path

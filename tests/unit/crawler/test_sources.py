@@ -6,7 +6,7 @@ from pynavy.utility import directories
 
 class Test_Sources_Methods(unittest.TestCase):
     def setUp(self) -> None:
-        self.url = "https://www.example"
+        self.url = "https://www.example.com"
         self.file_url = "https://www.example/file.pdf"
         self.local_file_path = __file__
         self.local_folder = os.path.join("path", "folder", "item")
