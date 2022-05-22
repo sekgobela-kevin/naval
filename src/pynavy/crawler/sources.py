@@ -98,13 +98,13 @@ def is_text_file(source: str):
 
 
 def get_urls_from_text(text: str, sep:str="\n", strict=False):
-    '''Returns collection of urls and file paths\n
+    '''Extracts urls from text\n
     text - text to extract sources(urls, file paths)'''
-    pattern = r"(\b.*)(\/.*?\/)((?:[^\/]|\\\/)+?)(?:(?<!\\)\s|$)"
+    pattern = r"(https:\/\/)(.*?\/)((?:[^\/]|\\\/)+?)(?:(?<!\\)\s|$)"
     urls = set()
-    for line in text.split(sep=sep):
-        match = re.search(line, pattern)
-        if match: urls.add(match.group())
+    for url in re.findall(pattern, text):
+        if url:
+            urls.add("".join(url).strip())
     return urls
     
 def get_urls_from_html(html: str):
