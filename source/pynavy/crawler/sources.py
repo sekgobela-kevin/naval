@@ -2,7 +2,7 @@ import os
 from urllib.parse import urlparse
 import mimetypes, re, glob
 
-from src.pynavy.utility import directories
+from ..utility import directories
 from bs4 import BeautifulSoup
 
 if mimetypes.inited: 
