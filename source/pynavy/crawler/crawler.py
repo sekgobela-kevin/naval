@@ -101,7 +101,7 @@ def download_all(folder_path: str, urls: List[str]) -> None:
         download(url, filepath)
 
 
-def get_fetch_object(source) -> Fetch_Base:
+def create_fetch_object(source) -> Fetch_Base:
     '''Returns fetch with data for source\n
     source - url, file path or gile object, etc'''
     # returns that fetch object if fetch is fetch object
@@ -116,7 +116,7 @@ def get_fetch_object(source) -> Fetch_Base:
     # Fetch(source) could also work
     return fetch_obj
 
-def get_parse_object(fetch_input) -> Parse_Base:
+def create_parse_object(fetch_input) -> Parse_Base:
     '''Returns parse object for fetch object or fetch source\n
     fetch_input - source(url, file path, etc) or fetch object'''
     # returns the parse object if fetch_input is parse object
@@ -126,7 +126,7 @@ def get_parse_object(fetch_input) -> Parse_Base:
         return fetch_input
     else:
         # fetch_input is source or fetch object
-        fetch_obj = get_fetch_object(fetch_input)
+        fetch_obj = create_fetch_object(fetch_input)
     if not Master_Parse.is_fetch_valid(fetch_obj):
         # parse class wasnt registed or problem with source extension
         source = fetch_obj.get_source
@@ -135,7 +135,7 @@ def get_parse_object(fetch_input) -> Parse_Base:
     # Parse(fetch_obj) could also work
     return Master_Parse.get_parse_object(fetch_obj)
 
-def get_crawl_object(source):
+def create_crawl_object(source):
     '''Creates and returns crawl object\n 
     source - url, file path or gile object, etc'''
     return Crawl(source)
@@ -144,12 +144,12 @@ def get_crawl_object(source):
 def extract_text(parse_input) -> str:
     '''Extract text from source, fetch object or parse object\n
     parse_input - source(url, file path, etc), fetch object or parse object'''
-    return get_parse_object(parse_input).get_text()
+    return create_parse_object(parse_input).get_text()
 
 def extract_html(parse_input) -> str:
     '''Extract html from source, fetch object or parse object\n
     parse_input - source(url, file path, etc), fetch object or parse object'''
-    return get_parse_object(parse_input).get_html()
+    return create_parse_object(parse_input).get_html()
 
 def extract_text_to_file(parse_input, dest_file) -> str:
     '''Extract text from source, fetch object or parse object\n
