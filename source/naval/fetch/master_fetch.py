@@ -1,7 +1,7 @@
 from io import FileIO
 
 from typing import Set, Type
-from black import List
+from typing import List
 
 from ..fetch.file_fetch import File_Fetch
 from ..fetch.web_fetch import Web_Fetch
