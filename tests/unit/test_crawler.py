@@ -1,7 +1,7 @@
 from io import BytesIO
 import os
 import unittest
-from naval.crawler.crawler import *
+from naval.crawler import *
 from naval.utility import directories
 
 

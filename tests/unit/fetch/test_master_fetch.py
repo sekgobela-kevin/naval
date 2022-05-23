@@ -1,7 +1,7 @@
 from io import FileIO, IOBase
 import unittest
 import tempfile
-from naval.crawler.fetch.master_fetch import *
+from naval.fetch.master_fetch import *
 
 
 class Test_Master_Fetch(unittest.TestCase):

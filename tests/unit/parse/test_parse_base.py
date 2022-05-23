@@ -1,8 +1,8 @@
 from io import FileIO, IOBase
 import unittest
 import tempfile
-from naval.crawler.parse.parse_base import Parse_Base
-from naval.crawler.fetch.master_fetch import Master_Fetch
+from naval.parse.parse_base import Parse_Base
+from naval.fetch.master_fetch import Master_Fetch
 
 
 class Test_Fetch_Base(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
-from naval.crawler.fetch.fetch import Fetch
-from naval.crawler.parse.parse import Parse
-from naval.crawler.crawl_base import Crawl_Base
+from naval.fetch.fetch import Fetch
+from naval.parse.parse import Parse
+from naval.crawl_base import Crawl_Base
 
 
 class Test_Crawl_Base(unittest.TestCase):

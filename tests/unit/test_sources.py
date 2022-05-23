@@ -1,6 +1,6 @@
 import os
 import unittest
-from naval.crawler.sources import *
+from naval.sources import *
 from naval.utility import directories
 
 

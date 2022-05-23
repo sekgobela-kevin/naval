@@ -1,13 +1,13 @@
 from asyncio import streams
 from io import BytesIO, StringIO
 
-from naval.crawler import download
-from naval.crawler import download_all
-from naval.crawler import sources
+from naval import download
+from naval import download_all
+from naval import sources
 
 import os
 
-from naval.crawler.crawler import extract_html
+from naval.crawler import extract_html
 
 
 # downloads webpage into 'webpage.html'
