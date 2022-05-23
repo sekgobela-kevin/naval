@@ -1,18 +1,11 @@
-# text proccessing
-spacy
-spacy-legacy
-spacy-wordnet
-nltk
-
-# crawler(fetch data)
+# for fetching data
 urllib3
 
-# crawler(parse data)
+# for parsing data
 beautifulsoup4
 python-pptx
 python-docx
 pdfminer.six
-
-# dont what it does
-# has to do with pip
+ 
+# dont what it does, has to do with pip
 -e .
