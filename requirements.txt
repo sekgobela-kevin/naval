@@ -1,12 +1,18 @@
-# for fetching data
+# ----------------- #
+# for fetching data #
+# ----------------- #
 urllib3
+# included in std library
+requests
 
-# for parsing data
+# ---------------- #
+# for parsing data #
+# ---------------- #
 beautifulsoup4
 python-pptx
 python-docx
 PyDocX
 pdfminer.six
  
-# dont what it does, has to do with pip
+# has to do with pip
 -e .
