@@ -1,5 +1,5 @@
-from ...utility.container import Container
-from ...utility.equality import Equality
+from ..utility.container import Container
+from ..utility.equality import Equality
 from .text_section import Text_Section
 
 

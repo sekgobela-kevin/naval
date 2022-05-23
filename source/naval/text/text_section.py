@@ -1,5 +1,5 @@
-from ...utility.section import Section
-from ...utility.equality import Equality
+from ..utility.section import Section
+from ..utility.equality import Equality
 class Text_Section(Section, Equality):
     '''Represents portion of text'''
     def __init__(self, text, start_end_index, metadata={}) -> None:

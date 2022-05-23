@@ -10,9 +10,9 @@ from .fetch import *
 from .parse import *
 from .text import *
 
-from ..utility.container import Container
-from ..utility import files
-from ..utility import directories
+from .utility.container import Container
+from .utility import files
+from .utility import directories
 
 from . import sources
 

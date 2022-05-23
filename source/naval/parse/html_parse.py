@@ -2,7 +2,7 @@ import mimetypes
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
-from ...utility import directories
+from ..utility import directories
 from .parse_base import Parse_Base
 from ..fetch.fetch_base import Fetch_Base
 
