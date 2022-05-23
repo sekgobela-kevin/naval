@@ -1,5 +1,5 @@
 from io import BytesIO, StringIO
-from pynavy import crawler
+from naval import crawler
 
 html = '''
     <div>

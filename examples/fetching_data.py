@@ -1,5 +1,5 @@
 from io import BytesIO
-from pynavy.crawler import Fetch
+from naval.crawler import Fetch
 
 # Fetch class is used to create object for fetching data
 # Data can be fetched from url, file path or file like objects

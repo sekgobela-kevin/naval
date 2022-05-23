@@ -16,6 +16,6 @@ def add_project_source_to_path():
     sys.path.append(os.path.join(project_dir, "source"))
 
 # adds project source dir to system path
-# tests need access to pynavy package
+# tests need access to naval package
 # unittest seems not to provide that
 add_project_source_to_path()

@@ -1,13 +1,13 @@
 from asyncio import streams
 from io import BytesIO, StringIO
 
-from pynavy.crawler import download
-from pynavy.crawler import download_all
-from pynavy.crawler import sources
+from naval.crawler import download
+from naval.crawler import download_all
+from naval.crawler import sources
 
 import os
 
-from pynavy.crawler.crawler import extract_html
+from naval.crawler.crawler import extract_html
 
 
 # downloads webpage into 'webpage.html'

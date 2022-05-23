@@ -1,8 +1,8 @@
 from io import BytesIO
 import os
 import unittest
-from pynavy.crawler.crawler import *
-from pynavy.utility import directories
+from naval.crawler.crawler import *
+from naval.utility import directories
 
 
 class Test_Text_Functions(unittest.TestCase):

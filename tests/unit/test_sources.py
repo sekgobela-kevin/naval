@@ -1,7 +1,7 @@
 import os
 import unittest
-from pynavy.crawler.sources import *
-from pynavy.utility import directories
+from naval.crawler.sources import *
+from naval.utility import directories
 
 
 class Test_Sources_Methods(unittest.TestCase):

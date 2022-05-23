@@ -1,5 +1,5 @@
 import unittest
-from pynavy.utility.equality import Equality
+from naval.utility.equality import Equality
 
 class TestContainer(unittest.TestCase):
     def setUp(self) -> None:
