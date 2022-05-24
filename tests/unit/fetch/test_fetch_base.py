@@ -20,6 +20,10 @@ class Test_Fetch_Base(unittest.TestCase):
         self.file_object.close()
         self.file_object2.close()
 
+    def test_get_source(self):
+        self.assertEqual(self.fetch_obj.get_source(), self.file_object)
+        self.assertEqual(self.fetch_obj2.get_source(), self.file_path)
+
     def test_source_to_text(self):
         self.assertEqual(Fetch_Base.source_to_text(self.file_path), 
         self.file_path)
@@ -30,16 +34,6 @@ class Test_Fetch_Base(unittest.TestCase):
         self.assertEqual(self.fetch_obj2.get_source_text(), 
         Fetch_Base.source_to_text(self.file_path))
 
-    def test_source_to_content_type(self):
-        self.assertEqual(Fetch_Base.source_to_content_type(self.file_object),
-        None)
-        self.assertEqual(Fetch_Base.source_to_content_type(self.file_path),
-        mimetypes.guess_type(self.file_path)[0])
-
-    def test_get_content_type(self):
-        self.assertEqual(Fetch_Base(self.file_path).get_content_type(), 
-        Fetch_Base.source_to_content_type(self.file_path))
-
     def test_transform_content_type(self):
         content_type = Fetch_Base.transform_content_type('text/')
         self.assertEqual(content_type, 'text/')
@@ -49,6 +43,32 @@ class Test_Fetch_Base(unittest.TestCase):
         self.assertEqual(content_type, mimetypes.guess_type(' .html')[0])
         content_type = Fetch_Base.transform_content_type('pdf')
         self.assertEqual(content_type, mimetypes.guess_type(' .pdf')[0])
+        content_type = Fetch_Base.transform_content_type('.docx')
+        self.assertEqual(content_type, mimetypes.guess_type(' .docx')[0])
+
+    def test_source_to_content_type(self):
+        self.assertEqual(Fetch_Base.source_to_content_type(self.file_object),
+        None)
+        self.assertEqual(Fetch_Base.source_to_content_type(self.file_path),
+        mimetypes.guess_type(self.file_path)[0])
+        self.assertEqual(Fetch_Base.source_to_content_type("file.docx"), 
+        mimetypes.guess_type(' .docx')[0])
+        self.assertEqual(Fetch_Base.source_to_content_type("file.html"), 
+        mimetypes.guess_type(' .html')[0])
+        self.assertEqual(Fetch_Base.source_to_content_type('erdfx'), None)
+
+    def test_guess_type(self):
+        self.assertEqual(Fetch_Base.guess_type(self.file_object), None)
+        self.assertEqual(Fetch_Base.guess_type(self.file_path),
+        mimetypes.guess_type(self.file_path)[0])
+        self.assertEqual(Fetch_Base.guess_type(self.file_object, 
+        ".docx"), mimetypes.guess_type(' .docx')[0])
+        self.assertEqual(Fetch_Base.guess_type(self.file_path, 
+        "file"), mimetypes.guess_type(self.file_path)[0])
+
+    def test_get_content_type(self):
+        self.assertEqual(Fetch_Base(self.file_path).get_content_type(), 
+        Fetch_Base.source_to_content_type(self.file_path))
 
     def test_open(self):
         # temporary file should be opened
