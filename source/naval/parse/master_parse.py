@@ -16,14 +16,20 @@ class Master_Parse():
     # python-magic library could make things simpler by analysing bytes
     parse_classes: Set[Type[Parse_Base]] = set()
 
-    @staticmethod
-    def is_fetch_valid(fetch_obj: Fetch_Base) -> bool:
-        '''Checks if fetch object supported/valid based on its source.\n
-        fecth_obj - fetch object with data to parse'''
+    @classmethod
+    def is_source_parsable(cls, source) -> bool:
+        '''Checks if source can be parsed based on its mimetype\n
+        source - file path, url, file object, etc'''
         for parse_class in Master_Parse.parse_classes:
-            if parse_class.is_fetch_valid(fetch_obj):
+            if parse_class.is_source_parsable(source):
                 return True
         return False
+
+    @classmethod
+    def is_fetch_valid(cls, fetch_obj: Fetch_Base) -> bool:
+        '''Checks if fetch object supported/valid based on its source.\n
+        fecth_obj - fetch object with data to parse'''
+        return cls.is_source_parsable(fetch_obj.get_source())
 
     @staticmethod
     def parse_class_exists(fetch_obj: Fetch_Base) -> bool or Parse_Base:
