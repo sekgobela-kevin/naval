@@ -2,13 +2,14 @@ from io import FileIO
 import urllib
 from urllib.request import urlopen
 from urllib.parse import urlparse
-import requests
+import requests, mimetypes
 
 from pdfminer.high_level import extract_text
 import os, sys, io
 import tempfile
 
 from ..fetch.fetch_base import Fetch_Base
+from ..utility import directories
 
 class Web_Fetch(Fetch_Base):
     '''Crawls the web for data'''
@@ -22,6 +23,24 @@ class Web_Fetch(Fetch_Base):
         '''Returns text version of source. e.g file object would
         return its path or file name'''
         return source
+
+    @classmethod
+    def source_to_content_type(cls, source):
+        '''Return content type of source(url, filepath, etc)\n
+        source - url, filepath, file object, etc\n'''
+        if not mimetypes.inited: mimetypes.init()
+        source_text = cls.source_to_text(source)
+        # handle url without extension(likey pointing to html)
+        # e.g http://example.com/tutorials
+        path_part = urlparse(source_text).path
+        if path_part:
+            # check if path part has extension
+            if not directories.get_file_extension(path_part):
+                source_text += " .html"
+        else:
+            # no path part mean not extension
+            source_text += " .html"
+        return mimetypes.guess_type(source_text)[0]
 
     @staticmethod
     def is_source_valid(source: str) -> bool:
@@ -68,7 +87,7 @@ class Web_Fetch(Fetch_Base):
         if not isinstance(source, str):
             raise TypeError(f"source should be string not ", type(source))
         request = requests.get(source, headers=cls.headers, stream=True)
-        for chunk in request.iter_content(chunk_size=128):
+        for chunk in request.iter_content(chunk_size=2**11):
             file.write(chunk)
         return file
 
