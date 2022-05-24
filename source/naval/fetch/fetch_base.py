@@ -164,9 +164,13 @@ class Fetch_Base():
         '''Fetches and read data from source(url, filepath, etc)\n
         source - url, filepath, file object, etc\n
         '''
-        raise NotImplementedError()
+        file_obj = io.BytesIO()
+        cls.fetch_to_file(source, file_obj, *args, **kwagrs)
+        file_obj.seek(0)
+        return file_obj.read()
 
-    def fetch_to_disc(self, source: str) -> str:
+    @classmethod
+    def fetch_to_file(cls, source: str, file: io.IOBase) -> str:
         '''Fetch data from source to file and return file object\n
         source - url, filepath, file object, etc'''
         # no need to fetch data is already in file
@@ -180,8 +184,7 @@ class Fetch_Base():
             self.file = self.open(self._source, *args, **kwarg)
         elif self.is_empty():
             # write to file if empty
-            self.fetch_to_disc(self._source)
-        self.file.seek(0)
+            self.fetch_to_file(self._source, self.file)
         return self.file
 
 

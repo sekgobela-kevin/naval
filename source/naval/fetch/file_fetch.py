@@ -90,9 +90,26 @@ class File_Fetch(Fetch_Base):
                 return source.name
         return cls.get_unknown_source()
 
-    def fetch_to_disc(self, source: str) -> str:
-        '''Fetch data from source to file and return file object'''
-        # no need to fetch data is already in file
+    @classmethod
+    def fetch_to_file(cls, source: str, file: io.FileIO) -> str:
+        '''Fetch data from source to file and return file object\n
+        source - file path or file like object\n
+        file - file like object to store data'''
+        source_file = cls.open(source)
+        source_file.seek(0)
+        # its not worth to write to same file
+        # this checks if source and file are not same based on filename
+        if cls.get_filename(source) != cls.get_filename(file):
+            file.writelines(source_file)
+            # close file if its not file like object
+            if not isinstance(source, io.IOBase):
+                source_file.close()
+        return file
+
+    def request(self, *args, **kwarg) -> io.IOBase:
+        '''Read data from file path and return file object'''
+        # file already has data
+        # no need to request for data
         return self.file
 
 
@@ -101,7 +118,7 @@ if __name__ == "__main__":
     string = tempfile.TemporaryFile()
     string.write(b"jhhh")
     print(os.path.isfile(__file__))
-    fetch_obj = File_Fetch(__file__, "file.pddf")
+    fetch_obj = File_Fetch(__file__)
     print(fetch_obj.is_source_active(fetch_obj.get_source()))
     print(fetch_obj.get_source_text())
     print(fetch_obj.get_content_type())

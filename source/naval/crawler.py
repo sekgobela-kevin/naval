@@ -127,7 +127,7 @@ def create_parse_object(fetch_input) -> Parse_Base:
     else:
         # fetch_input is source or fetch object
         fetch_obj = create_fetch_object(fetch_input)
-    if not Master_Parse.is_fetch_valid(fetch_obj):
+    if not Master_Parse.is_fetch_parsable(fetch_obj):
         # parse class wasnt registed or problem with source extension
         source = fetch_obj.get_source
         err_msg = f"source({source}) is not parsable(no parse class)"

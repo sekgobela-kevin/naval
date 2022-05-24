@@ -1,4 +1,4 @@
-from io import FileIO, IOBase
+from io import BytesIO, FileIO, IOBase
 import unittest
 import tempfile
 from naval.fetch.web_fetch import Web_Fetch
@@ -55,14 +55,10 @@ class Test_Web_Fetch(unittest.TestCase):
             # url should only be string
             Web_Fetch.is_source_active(44)   
 
-    def test_fetch_to_disc(self):
-        file_obj = self.fetch_obj.get_file()
-        file_obj.write(b'')
-        new_file_obj = self.fetch_obj.fetch_to_disc(self.url)
-        # check data was added to the file
-        self.assertFalse(self.fetch_obj.is_empty())
-        # check if it returns file object
-        self.assertIsInstance(new_file_obj, IOBase)
+    def test_fetch_to_file(self):
+        file_obj = BytesIO()
+        self.fetch_obj.fetch_to_file(self.url, file_obj)
+        self.assertGreater(file_obj.tell(), 0)
         with self.assertRaises(TypeError):
             # url should only be a string
-            self.fetch_obj.fetch_to_disc({})
+            self.fetch_obj.fetch_to_file({}, file_obj)

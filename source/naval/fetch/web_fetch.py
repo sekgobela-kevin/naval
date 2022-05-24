@@ -12,10 +12,10 @@ from ..fetch.fetch_base import Fetch_Base
 
 class Web_Fetch(Fetch_Base):
     '''Crawls the web for data'''
+    headers = {'User-Agent': 'Mozilla/5.0'}
 
     def __init__(self, url, content_type=None, *args, **kwargs):
         super().__init__(url, content_type=None, *args, **kwargs)
-        self.headers = {'User-Agent': 'Mozilla/5.0'}
 
     @classmethod
     def source_to_text(cls, source) -> str:
@@ -60,15 +60,17 @@ class Web_Fetch(Fetch_Base):
             filename += ".html"
         return filename
 
-    def fetch_to_disc(self, source: str) -> str:
-        '''Read raw data from source and save to file'''
+    @classmethod
+    def fetch_to_file(cls, source: str, file: io.FileIO) -> str:
+        '''Fetch data from source to file and return file object\n
+        source - file path or file like object\n
+        file - file like object to store data'''
         if not isinstance(source, str):
             raise TypeError(f"source should be string not ", type(source))
-        request = requests.get(self._source, headers=self.headers, stream=True)
+        request = requests.get(source, headers=cls.headers, stream=True)
         for chunk in request.iter_content(chunk_size=128):
-            self.file.write(chunk)
-        self.file.seek(0)
-        return self.file
+            file.write(chunk)
+        return file
 
 
 if __name__ == "__main__":

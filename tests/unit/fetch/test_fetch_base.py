@@ -1,4 +1,4 @@
-from io import FileIO, IOBase
+from io import BytesIO, FileIO, IOBase
 import mimetypes
 import unittest
 import tempfile
@@ -130,9 +130,10 @@ class Test_Fetch_Base(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             Fetch_Base.fetch(self.fetch_obj.get_source())
 
-    def test_fetch_to_disc(self):
+    def test_fetch_to_file(self):
         with self.assertRaises(NotImplementedError):
-            self.fetch_obj.fetch_to_disc(self.fetch_obj.get_source())
+            self.fetch_obj.fetch_to_file(self.fetch_obj.get_source(), 
+            self.file_object)
 
     def test_request(self):
         with self.assertRaises(NotImplementedError):

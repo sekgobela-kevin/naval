@@ -56,9 +56,9 @@ class Test_File_Fetch(unittest.TestCase):
             # only str and file object allowed as source
             File_Fetch.is_source_active(44)   
 
-    def test_fetch_to_disc(self):
-        file_obj = self.fetch_obj.fetch_to_disc(self.fetch_obj.get_source())
-        self.assertIsInstance(self.file_object, IOBase)
+    def test_fetch_to_file(self):
+        self.fetch_obj.fetch_to_file(self.file_path, self.file_object)
+        self.assertGreater(self.file_object.tell(), 0)
 
     def test_get_filename(self):
         self.file_object.write(b'')

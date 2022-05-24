@@ -82,32 +82,27 @@ class Master_Fetch():
         return fetch_obj.get_file_copy()
 
     @staticmethod
-    def fetch_to_disc(source: str, *args, **kwargs) -> FileIO:
+    def fetch_to_file(source: str, file: FileIO, *args, **kwargs) -> FileIO:
         '''Fetches data from source and store to file\n
-        source - used for locating and fetching data(e.g file path, url)'''
-        fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
-        fetch_obj.fetch_to_disc(source, *args, **kwargs)
-        return fetch_obj.get_file_copy()
+        source - used for locating and fetching data(e.g file path, url)\n
+        file - file like object to store data'''
+        fetch_class = Master_Fetch.get_fetch_class(source, *args, **kwargs)
+        fetch_class.fetch_to_file(source, file, *args, **kwargs)
+        return file
 
     @staticmethod
     def fetch(source: str, *args, **kwargs) -> str or bytes:
         '''Fetch data from source\n
         source - used for locating and fetching data(e.g file path, url)'''
-        fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
-        fetched_data = fetch_obj.fetch()
-        fetch_obj.close()
-        return fetched_data
+        fetch_class = Master_Fetch.get_fetch_class(source, *args, **kwargs)
+        return fetch_class.fetch(source)
 
     @staticmethod
-    def get_source(source, *args, **kwargs) -> str:
-        '''Returns string version of source argument. If source is file
-        then filename is returned. Urls and file paths will just get returned
-        unchanged as they are already strings and valid. Exception
-        will be raised if source argument is invalid.\n
+    def source_to_text(source, *args, **kwargs) -> str:
+        '''Returns text version of source\n
         source - str(file path, url, etc), None or file object'''
-        fetch_object = Master_Fetch.get_fetch_object(source, *args, **kwargs)
-        fetch_object.close()
-        return fetch_object.get_source()
+        fetch_class = Master_Fetch.get_fetch_class(source, *args, **kwargs)
+        return fetch_class.source_to_text(source)
 
     @staticmethod
     def register_fetch_class(fetch_class: Type[Fetch_Base]) -> None:

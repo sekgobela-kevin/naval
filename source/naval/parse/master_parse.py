@@ -26,16 +26,19 @@ class Master_Parse():
         return False
 
     @classmethod
-    def is_fetch_valid(cls, fetch_obj: Fetch_Base) -> bool:
+    def is_fetch_parsable(cls, fetch_obj: Fetch_Base) -> bool:
         '''Checks if fetch object supported/valid based on its source.\n
         fecth_obj - fetch object with data to parse'''
-        return cls.is_source_parsable(fetch_obj.get_source())
+        for parse_class in Master_Parse.parse_classes:
+            if parse_class.is_fetch_parsable(fetch_obj):
+                return True
+        return False
 
     @staticmethod
     def parse_class_exists(fetch_obj: Fetch_Base) -> bool or Parse_Base:
         '''Checks if parse class for parse object exists\n
         fetch_obj - parse object with data to parse'''
-        return Master_Parse.is_parse_valid(fetch_obj)
+        return Master_Parse.is_fetch_parsable(fetch_obj)
 
     @staticmethod
     def get_parse_class(fetch_obj: Fetch_Base) -> Type[Parse_Base]:
@@ -45,7 +48,7 @@ class Master_Parse():
         for parse_class in Master_Parse.parse_classes:
             # some fetch_objs arent supported by all parse classes
             try:
-                if parse_class.is_fetch_valid(fetch_obj):
+                if parse_class.is_fetch_parsable(fetch_obj):
                     found_parse_classes.append(parse_class)
             except(ValueError, TypeError):
                 continue

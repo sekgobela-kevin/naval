@@ -18,16 +18,20 @@ class Fetch(Fetch_Base, Master_Fetch):
         return self.fetch_obj.get_file()
 
     def is_source_valid(self, source: str) -> bool:
-        '''Checks if source is valid'''
+        '''Checks if source is valid\n
+        source - url, file path, file object, etc'''
         return self.fetch_obj.is_source_valid(source)
 
     def is_source_active(self, source: str) -> bool:
-        '''Checks if source is active'''
+        '''Checks if source is active\n
+        source - url, file path, file object, etc'''
         return self.fetch_obj.is_source_active(source)
 
-    def fetch_to_disc(self, source: str) -> str:
-        '''Read raw data from source and save to file'''
-        self.fetch_obj.fetch_to_disc(source)
+    def fetch_to_file(self, source: str, file: io.FileIO) -> str:
+        '''Read raw data from source and save to file\n
+        source - url, file path, file object, etc\n
+        file - file like object to store data'''
+        self.fetch_obj.fetch_to_file(source, file)
         return self.fetch_obj.get_file()
 
     def get_fetch(self):

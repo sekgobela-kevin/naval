@@ -26,7 +26,7 @@ fetch_obj.fetch()
 # reads data from from file(one returned by get_file())
 # same arguments as file.read()
 fetch_obj.read()
-# fetches data from the url to file(one returned by get_file())
+# fetches data from the url to file(passed as argument)
 # it performs request and writes to the file
 fetch_obj.fetch_to_disc()
 # fetches data from url by calling fetch_to_disc()

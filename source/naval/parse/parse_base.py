@@ -41,14 +41,14 @@ class Parse_Base():
         return self.doc
 
     @classmethod
-    def is_source_parsable(cls, source: str) -> bool:
+    def is_source_parsable(cls, source_text: str) -> bool:
         '''Checks if source can be parsed based on its mimetype\n
-        source - file path or url'''
-        if not isinstance(source, str):
-            err_msg = "source should only be string"
-            raise TypeError(err_msg, type(fetch_obj))   
+        source_text - text of source e.g file path, url, etc'''
+        if not isinstance(source_text, str):
+            err_msg = "source_text should only be string"
+            raise TypeError(err_msg, type(source_text))   
         if not mimetypes.inited: mimetypes.init()
-        fetch_type = mimetypes.guess_type(source)[0]
+        fetch_type = mimetypes.guess_type(source_text)[0]
         if fetch_type:
             # "in" would allow to match only 'text' in text/html
             return cls.fetch_content_type in fetch_type
@@ -56,14 +56,17 @@ class Parse_Base():
         
 
     @classmethod
-    def is_fetch_valid(cls, fetch_obj) -> bool:
+    def is_fetch_parsable(cls, fetch_obj: Fetch_Base) -> bool:
         '''Checks if fetch object is valid. Source or bytes of 
         fetch object may be inspected. Its not guaranteed that
         fetch object will be parsed even if it may be valid'''
         if not isinstance(fetch_obj, Fetch_Base):
             err_msg = "fetch_obj is not created from Fetch_Base or its subclass"
             raise TypeError(err_msg, type(fetch_obj))
-        return cls.is_source_parsable(fetch_obj.get_source())
+        fetch_content_type = fetch_obj.get_content_type()
+        if fetch_content_type:
+            return cls.fetch_content_type in fetch_content_type
+        return False
 
     def create_file(self, *args, **kwarg) -> IOBase:
         '''Returns file object to stored parsed data\n

@@ -1,4 +1,4 @@
-from io import FileIO, IOBase
+from io import BytesIO, FileIO, IOBase
 import unittest
 import tempfile
 from naval.fetch.master_fetch import *
@@ -93,22 +93,22 @@ class Test_Master_Fetch(unittest.TestCase):
         # check if fetched data is not empty
         self.assertGreater(len(fetched), 0)
 
-    def test_fetch_to_disc(self):
+    def test_fetch_to_file(self):
+        file_obj = BytesIO()
         # check if data is fetched from source to file in disc
-        file = Master_Fetch.fetch_to_disc(self.url)
-        self.assertIsInstance(file, IOBase)
+        Master_Fetch.fetch_to_file(self.file_path, file_obj)
         # check data was fetched to file
-        self.assertGreater(len(file.read(10)), 0)
-        file.close()
+        self.assertGreater(file_obj.tell(), 0)
+        file_obj.close()
 
-    def test_get_source(self):
+    def test_source_to_text(self):
         # valid string source is returned unchanged
-        self.assertEqual(Master_Fetch.get_source(self.url), self.url)
-        self.assertEqual(Master_Fetch.get_source(__file__), __file__)
+        self.assertEqual(Master_Fetch.source_to_text(self.url), self.url)
+        self.assertEqual(Master_Fetch.source_to_text(__file__), __file__)
         # file name of file object should be retured
-        self.assertEqual(Master_Fetch.get_source(self.file_obj), __file__)
+        self.assertEqual(Master_Fetch.source_to_text(self.file_obj), __file__)
         with self.assertRaises(Exception):
-            self.assertEqual(Master_Fetch.get_source(""), "")
+            self.assertEqual(Master_Fetch.source_to_text(""), "")
 
     def test_register_fetch_class(self):
         # clear all existing fetch classes
