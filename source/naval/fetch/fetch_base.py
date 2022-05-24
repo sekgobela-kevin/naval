@@ -83,15 +83,17 @@ class Fetch_Base():
         return mimetypes.guess_type(" ."+content_type)[0]
 
     @classmethod
-    def guess_type(cls, text_source, content_type=None):
+    def guess_type(cls, source, content_type=None):
         '''Guess content type from text source and another content type\n
-        text_source - string/text representing source of fetch object\n
+        source - url, filepath, file object, etc\n
         content_type - string in form e.g 'text/', '.html', 
         'html', 'text/plain' or 'file.txt'''
-        source_content_type = cls.source_to_content_type(text_source)
+        text_source = cls.source_to_text(source)
+        source_content_type = cls.transform_content_type(content_type)
+        # try content_type argument else guess from source
         if source_content_type:
             return source_content_type
-        return cls.transform_content_type(content_type)
+        return cls.source_to_content_type(text_source)
 
 
     def get_file(self):

@@ -13,9 +13,15 @@ from ..fetch.fetch_base import Fetch_Base
 class Web_Fetch(Fetch_Base):
     '''Crawls the web for data'''
 
-    def __init__(self, url, *args, **kwarg):
-        super().__init__(url)
+    def __init__(self, url, content_type=None, *args, **kwargs):
+        super().__init__(url, content_type=None, *args, **kwargs)
         self.headers = {'User-Agent': 'Mozilla/5.0'}
+
+    @classmethod
+    def source_to_text(cls, source) -> str:
+        '''Returns text version of source. e.g file object would
+        return its path or file name'''
+        return source
 
     @staticmethod
     def is_source_valid(source: str) -> bool:
@@ -40,14 +46,19 @@ class Web_Fetch(Fetch_Base):
             pass
         return False
 
-    @staticmethod
-    def get_filename_from_url(url):
+    @classmethod
+    def get_filename_from_url(cls, url):
         '''Create filename from url'''
         if not isinstance(url, str):
             raise TypeError(f"url should be string not ", type(url))
         parsed = urlparse(url)
         filename = f"{parsed.scheme}_{parsed.netloc}_{parsed.path}"
-        return filename.replace("/", "_")
+        filename = filename.replace("/", "_")
+        # add .html to filename if no path part to url
+        # its likely to be webpage which is mostly HTML
+        if not parsed.path:
+            filename += ".html"
+        return filename
 
     def fetch_to_disc(self, source: str) -> str:
         '''Read raw data from source and save to file'''

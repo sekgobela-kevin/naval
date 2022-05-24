@@ -1,3 +1,4 @@
+import mimetypes
 from ..fetch.fetch_base import Fetch_Base
 
 import tempfile
@@ -6,17 +7,18 @@ import random
 
 class File_Fetch(Fetch_Base):
     '''Provide methods for fetching data from file'''
-    def __init__(self, source, *args, **kwargs):
-        '''source - file object or path to file\n
+    def __init__(self, source, content_type=None, *args, **kwargs):
+        '''source - file path or file like object\n
         *args- optional arguments to pass to file.open()\n
         **kwagrs - optional arguments to pass to file.open()\n
         '''
-        super().__init__(source)
-        # get string source in case source is file object
-        # super().__init__() will set file object as source
-        # this line will extract name of file object as
-        # if it fails then unkown source get created from timestamp
-        self._source = self.get_filename(source)
+        super().__init__(source, content_type, *args, **kwargs)
+
+    @classmethod
+    def source_to_text(cls, source) -> str:
+        '''Returns text version of source. e.g file object would
+        return its path or file name'''
+        return cls.get_filename(source)
 
     @staticmethod
     def open(source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
@@ -75,6 +77,19 @@ class File_Fetch(Fetch_Base):
         # os.access() may be better
         return os.path.isfile(source)
 
+    @classmethod
+    def get_filename(cls, source: io.IOBase or str):
+        '''Creates filename from path or file object\n
+        source - file object or path to file'''
+        if not isinstance(source, (str, io.IOBase)):
+            TypeError("source should be file obj or string not ", type(source))
+        if isinstance(source, str): 
+            return source
+        elif "name" in dir(source):
+            if isinstance(source.name, (str)):
+                return source.name
+        return cls.get_unknown_source()
+
     def fetch_to_disc(self, source: str) -> str:
         '''Fetch data from source to file and return file object'''
         # no need to fetch data is already in file
@@ -86,8 +101,7 @@ if __name__ == "__main__":
     string = tempfile.TemporaryFile()
     string.write(b"jhhh")
     print(os.path.isfile(__file__))
-    crawl_obj = File_Fetch(string)
-    print(len(crawl_obj))
-    #print(crawl_obj[0].get_text())
-    print(crawl_obj.is_source_active(crawl_obj.get_source()))
-    print(crawl_obj.request())
+    fetch_obj = File_Fetch(__file__, "file.pddf")
+    print(fetch_obj.is_source_active(fetch_obj.get_source()))
+    print(fetch_obj.get_source_text())
+    print(fetch_obj.get_content_type())
