@@ -2,7 +2,10 @@ from io import FileIO
 import urllib
 from urllib.request import urlopen
 from urllib.parse import urlparse
+from requests.adapters import HTTPAdapter
 import requests, mimetypes
+import logging
+
 
 from pdfminer.high_level import extract_text
 import os, sys, io
@@ -10,6 +13,9 @@ import tempfile
 
 from ..fetch.fetch_base import Fetch_Base
 from ..utility import directories
+
+logging.getLogger("requests").propagate = False
+
 
 class Web_Fetch(Fetch_Base):
     '''Crawls the web for data'''
@@ -53,14 +59,18 @@ class Web_Fetch(Fetch_Base):
         except:
             return False
 
-    @staticmethod
-    def is_source_active(source: str) -> bool:
+    @classmethod
+    def is_source_active(cls, source: str) -> bool:
         '''Checks if source is active'''
         if not isinstance(source, str):
             raise TypeError(f"source should be string not ", type(source))
+        req = urllib.request.Request(source)
+        for key, val in cls.headers.items():
+            req.add_header(key, val)
         # you can perfor validation based on returned code mostly 200
         try:
-            return urlopen(source).getcode() == 200
+            code = urlopen(req).getcode()
+            return  code == 200
         except urllib.error.URLError:
             pass
         return False
@@ -80,22 +90,31 @@ class Web_Fetch(Fetch_Base):
         return filename
 
     @classmethod
-    def fetch_to_file(cls, source: str, file: io.FileIO) -> str:
+    def fetch_to_file(cls, source: str, file: io.FileIO, timeout=60,
+    conn_timeout=5, chunk_size=2**13, max_retries=2) -> str:
         '''Fetch data from source to file and return file object\n
         source - file path or file like object\n
-        file - file like object to store data'''
+        file - file like object to store data\n
+        timeout - timeout for fetching data\n
+        conn_timeout - timeout for connecting to server(connection timeout)'''
         if not isinstance(source, str):
             raise TypeError(f"source should be string not ", type(source))
-        request = requests.get(source, headers=cls.headers, stream=True)
-        for chunk in request.iter_content(chunk_size=2**11):
+        # create session with max retries for url
+        session = requests.Session()
+        session.mount(source, HTTPAdapter(max_retries))
+        # perform request
+        response = session.get(source, headers=cls.headers, stream=True,
+        timeout=(conn_timeout,timeout), verify=False)
+        for chunk in response.iter_content(chunk_size=chunk_size):
             file.write(chunk)
         return file
 
 
 if __name__ == "__main__":
-    url = 'http://docs.python.org/library/tempfile.html'
+    url = 'https://viaafrika.com/wp-content/uploads/2020/06/Gr12-Geography-Study-Guide_LR.pdf'
     crawl_obj = Web_Fetch(url=url)
-
-    for i in range(10):
-        print(len(crawl_obj.request().read()))
+    print(crawl_obj.is_source_active(url))
+    crawl_obj.request()
+    print(crawl_obj.read())
+    
 

@@ -176,15 +176,16 @@ class Fetch_Base():
         # no need to fetch data is already in file
         raise NotImplementedError()
 
-    def request(self, *args, **kwarg) -> io.IOBase:
-        '''Read data from file path and return file object'''
+    def request(self, **kwarg) -> io.IOBase:
+        '''Read data from file path and return file object\n
+        **kwarg - optional arguments to pass to .fetch_to_file()'''
         # check if file is closed or empty
         if self.file.closed:
             # open new file if closed
-            self.file = self.open(self._source, *args, **kwarg)
+            self.file = self.open(self._source)
         elif self.is_empty():
             # write to file if empty
-            self.fetch_to_file(self._source, self.file)
+            self.fetch_to_file(self._source, self.file, **kwarg)
         return self.file
 
 
