@@ -14,8 +14,6 @@ import tempfile
 from ..fetch.fetch_base import Fetch_Base
 from ..utility import directories
 
-logging.getLogger("requests").propagate = False
-
 
 class Web_Fetch(Fetch_Base):
     '''Crawls the web for data'''
@@ -91,7 +89,7 @@ class Web_Fetch(Fetch_Base):
 
     @classmethod
     def fetch_to_file(cls, source: str, file: io.FileIO, timeout=60,
-    conn_timeout=5, chunk_size=2**13, max_retries=2) -> str:
+    conn_timeout=5, chunk_size=2**13, max_retries=2, verify=True) -> str:
         '''Fetch data from source to file and return file object\n
         source - file path or file like object\n
         file - file like object to store data\n
@@ -103,18 +101,16 @@ class Web_Fetch(Fetch_Base):
         session = requests.Session()
         session.mount(source, HTTPAdapter(max_retries))
         # perform request
-        response = session.get(source, headers=cls.headers, stream=True,
-        timeout=(conn_timeout,timeout), verify=False)
+        response = requests.get(source, headers=cls.headers, stream=True,
+        timeout=(conn_timeout,timeout), verify=verify)
         for chunk in response.iter_content(chunk_size=chunk_size):
             file.write(chunk)
         return file
 
 
 if __name__ == "__main__":
-    url = 'https://viaafrika.com/wp-content/uploads/2020/06/Gr12-Geography-Study-Guide_LR.pdf'
+    url = 'https://example.com'
     crawl_obj = Web_Fetch(url=url)
     print(crawl_obj.is_source_active(url))
     crawl_obj.request()
     print(crawl_obj.read())
-    
-
