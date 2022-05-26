@@ -5,6 +5,9 @@ from .file_fetch import File_Fetch
 
 class Bytes_Fetch(File_Fetch):
     '''Fetches data from bytes'''
+    # specifies if source points to data
+    source_points_data = False
+
     def __init__(self, source, content_type=None, **kwargs):
         '''source - sequence of bytes(Bytes obect)\n
         content_type - content type for data in bytes\n

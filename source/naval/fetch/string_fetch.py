@@ -5,6 +5,9 @@ from .file_fetch import File_Fetch
 
 class String_Fetch(File_Fetch):
     '''Fetches data from string'''
+    # specifies if source points to data
+    source_points_data = False
+
     def __init__(self, source:str, content_type:str=None, encoding='utf8', **kwargs):
         '''source - sequence of characters(string)\n
         content_type - content type for data in string\n

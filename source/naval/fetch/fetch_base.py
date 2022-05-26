@@ -7,12 +7,15 @@ import shutil
 class Fetch_Base():
     '''Base class for fetching raw data from source(url, path, etc).
     Data from source is stored in file after fetched from its source.'''
-    '''Class for representing text broken into sections'''
+    # to be assigned for source text if not known
     unknown_prefix = "__unknown"
-    # added to source if source is unknown
     unknown_source_prefix = f"{unknown_prefix}_source"
-    # added to source if source is unknown
     unknown_tile_prefix = f"{unknown_prefix}_title"
+
+    # specifies if source points to data
+    # file path points to data but its contents is the data
+    # html file path(points to data) but html text(is the data)
+    source_locates_data = True
 
     def __init__(self, source, content_type=None, *args, **kwargs):
         '''source - url, filepath, file object, etc\n
