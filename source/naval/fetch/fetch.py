@@ -10,10 +10,13 @@ class Fetch(Fetch_Base, Master_Fetch):
         self.fetch_obj = self.get_fetch_object(source)
         super().__init__(source, *args, **kwargs)
 
+    @classmethod
+    def source_to_text(cls, source) -> str:
+        '''Returns text version of source. e.g file object would
+        return its path or file name'''
+        return cls.source_to_text(source)
+
     def open(self, *args, **kwargs) -> io.IOBase:
-        '''Opens temporary file\n
-        *args- optional arguments to pass to TemporaryFile() or open()\n
-        **kwagrs - optional arguments to pass to TemporaryFile() or open()\n'''
         # then source arg refers to file object
         return self.fetch_obj.get_file()
 
