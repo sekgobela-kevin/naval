@@ -17,94 +17,96 @@ class Master_Fetch():
     # stores fetch classes
     fetch_classes: Set[Type[Fetch_Base]] = set()
 
-    @staticmethod
-    def is_source_valid(source: str) -> bool:
-        '''Checks if source is valid for any of fetch classes\n
-        source - used for locating and fetching data(e.g file path, url)'''
-        def callback(fetch_class):
+
+    @classmethod
+    def is_source_valid(cls, source, source_locates_data=True) -> bool:
+        '''Checks if source is valid for any of fetch classes'''
+        for fetch_class in cls.fetch_classes:
             # handle execption in case a source not supported
             # Web_Fetch does not support file object
             try:
-                return fetch_class.is_source_valid(source)
+                if source_locates_data != fetch_class.source_locates_data:
+                    continue
+                isvalid =  fetch_class.is_source_valid(source)
+                if isvalid:
+                    return True
             except(ValueError, TypeError):
-                return False
-        return any(map(callback, Master_Fetch.fetch_classes))
+                pass
+        return False
 
-    @staticmethod
-    def is_source_active(source: str) -> bool:
-        '''Checks if source is active for all fetch classes\n
-        source - used for locating and fetching data(e.g file path, url)'''
-        # source could only be active if already valid
-        # so error is raised
-        if not Master_Fetch.is_source_valid(source):
-            raise Exception(f"source({source}) is invalid")
-        def callback(fetch_class):
+
+    @classmethod
+    def is_source_active(cls, source, source_locates_data=True) -> bool:
+        '''Checks if source is active for all fetch classes'''
+        for fetch_class in cls.fetch_classes:
             # handle execption in case a source not supported
             # Web_Fetch does not support file object
             try:
-                return fetch_class.is_source_active(source)
+                if source_locates_data != fetch_class.source_locates_data:
+                    continue
+                isactive =  fetch_class.is_source_active(source)
+                if isactive: return True
             except(ValueError, TypeError):
-                return False
-        return any(map(callback, Master_Fetch.fetch_classes))
+                pass
+        return False
 
     @staticmethod
-    def fetch_class_exists(source: str) -> bool:
-        '''Checks if fetch class for source exists\n
-        source - used for locating and fetching data(e.g file path, url)'''
-        return Master_Fetch.is_source_valid(source)
+    def fetch_class_exists(source, source_locates_data=True) -> bool:
+        '''Checks if fetch class for source exists'''
+        return Master_Fetch.is_source_valid(source, source_locates_data)
 
     @staticmethod
-    def get_fetch_class(source: str) -> Type[Fetch_Base]:
-        '''returns fetch class for source if exists\n
-        source - used for locating and fetching data(e.g file path, url)'''
+    def get_fetch_class(source, source_locates_data=True) -> Type[Fetch_Base]:
+        '''returns fetch class for source if exists'''
+        fetch_classes = []
         for fetch_class in Master_Fetch.fetch_classes:
-            # some sources arent supported by all fetch classes
             try:
+                if source_locates_data != fetch_class.source_locates_data:
+                    continue
                 if fetch_class.is_source_valid(source):
-                    return fetch_class
+                    fetch_classes.append(fetch_class)
             except(ValueError, TypeError):
                 continue
+        if fetch_classes:
+            return fetch_classes[0]
         raise Exception(f"fetch class for source({source}) not found")
 
     @staticmethod
-    def get_fetch_object(source: str, *args, **kwargs) -> Fetch_Base:
-        '''returns fetch object for source if fetch class exists\n
-        source - used for locating and fetching data(e.g file path, url)'''
+    def get_fetch_object(source, source_locates_data=True, **kwargs) -> Fetch_Base:
+        '''returns fetch object for source if fetch class exists'''
         # check if source is active before creating fetch objetc
-        if not Master_Fetch.is_source_active(source):
+        if not Master_Fetch.is_source_active(source, source_locates_data):
             raise Exception(f"source({source}) is not active")
-        fetch_class = Master_Fetch.get_fetch_class(source)
-        return fetch_class(source, *args, **kwargs)
+        fetch_class = Master_Fetch.get_fetch_class(source, source_locates_data)
+        return fetch_class(source, **kwargs)
 
     @staticmethod
-    def get_file(source: str, *args, **kwargs) -> FileIO:
-        '''Returns temporary file object from source\n
-        source - used for locating and fetching data(e.g file path, url)'''
-        fetch_obj = Master_Fetch.get_fetch_object(source, *args, **kwargs)
+    def get_file(source, source_locates_data=True, **kwargs) -> FileIO:
+        '''Returns file with fetched data'''
+        fetch_obj = Master_Fetch.get_fetch_object(source, 
+        source_locates_data, **kwargs)
+        fetch_obj.request()
         return fetch_obj.get_file_copy()
 
     @staticmethod
-    def fetch_to_file(source: str, file: FileIO, *args, **kwargs) -> FileIO:
-        '''Fetches data from source and store to file\n
-        source - used for locating and fetching data(e.g file path, url)\n
-        file - file like object to store data'''
-        fetch_class = Master_Fetch.get_fetch_class(source, *args, **kwargs)
-        fetch_class.fetch_to_file(source, file, *args, **kwargs)
+    def fetch_to_file(source, file: FileIO, source_locates_data=True, 
+    **kwargs) -> FileIO:
+        '''Fetches data from source and store to file'''
+        fetch_class = Master_Fetch.get_fetch_class(source, source_locates_data)
+        fetch_class.fetch_to_file(source, file, **kwargs)
         return file
 
     @staticmethod
-    def fetch(source: str, *args, **kwargs) -> str or bytes:
-        '''Fetch data from source\n
-        source - used for locating and fetching data(e.g file path, url)'''
-        fetch_class = Master_Fetch.get_fetch_class(source, *args, **kwargs)
-        return fetch_class.fetch(source)
+    def fetch(source, source_locates_data=True, **kwargs) -> bytes:
+        '''Fetches data from source and return bytes'''
+        fetch_class = Master_Fetch.get_fetch_class(source, source_locates_data)
+        return fetch_class.fetch(source, **kwargs)
 
     @staticmethod
-    def source_to_text(source, *args, **kwargs) -> str:
-        '''Returns text version of source\n
-        source - str(file path, url, etc), None or file object'''
-        fetch_class = Master_Fetch.get_fetch_class(source, *args, **kwargs)
-        return fetch_class.source_to_text(source)
+    def source_to_text(source, source_locates_data=True, **kwargs) -> str:
+        '''Returns text version of source'''
+        fetch_class = Master_Fetch.get_fetch_class(source, source_locates_data)
+        return fetch_class.source_to_text(source, **kwargs)
 
     @staticmethod
     def register_fetch_class(fetch_class: Type[Fetch_Base]) -> None:

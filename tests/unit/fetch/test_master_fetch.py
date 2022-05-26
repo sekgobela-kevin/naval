@@ -41,9 +41,6 @@ class Test_Master_Fetch(unittest.TestCase):
         self.assertTrue(Master_Fetch.is_source_active(self.file_obj))
         # test if it works for urls
         self.assertTrue(Master_Fetch.is_source_active(self.url))
-        # list is not valid source(error be raised)
-        with self.assertRaises(Exception):
-            self.assertFalse(Master_Fetch.is_source_active([]))
         # self.file_path2 is valid but not active
         # error shouldnt be raised
         self.assertFalse(Master_Fetch.is_source_active(self.file_path2))
