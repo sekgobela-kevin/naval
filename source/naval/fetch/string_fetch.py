@@ -13,11 +13,19 @@ class String_Fetch(File_Fetch):
         bytes_file = BytesIO(source.encode(encoding=encoding))
         super().__init__(bytes_file, content_type, **kwargs)
 
+    @staticmethod
+    def is_source_valid(source: str) -> bool:
+        '''Checks if source is valid\n
+        source - sequence of characters(string)\n'''
+        # source should only be string not file object
+        # File_Fetch accepts also file object
+        return isinstance(source, str)
+
 
 if __name__ == "__main__":
     fetch_obj = String_Fetch("This is string", content_type=" .txt")
     print(fetch_obj.read())
-    # b'This is string'
+    # b'This is string' 
     print(fetch_obj.get_content_type())
     # text/plain
 

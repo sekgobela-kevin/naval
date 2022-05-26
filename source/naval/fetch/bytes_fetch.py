@@ -13,6 +13,14 @@ class Bytes_Fetch(File_Fetch):
         bytes_file = BytesIO(source)
         super().__init__(bytes_file, content_type, **kwargs)
 
+    @staticmethod
+    def is_source_valid(source: str) -> bool:
+        '''Checks if source is valid\n
+        source - sequence of bytes(Bytes obect)\n'''
+        # source should only be bytes not file object or file path
+        # File_Fetch accepts also file object string(file path)
+        return isinstance(source, bytes)
+
 if __name__ == "__main__":
     fetch_obj = Bytes_Fetch(b"sequence of bytes", content_type=" .pdf")
     print(fetch_obj.read())

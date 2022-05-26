@@ -3,9 +3,11 @@ from io import FileIO
 from typing import Set, Type
 from typing import List
 
+from ..fetch.fetch_base import Fetch_Base
 from ..fetch.file_fetch import File_Fetch
 from ..fetch.web_fetch import Web_Fetch
-from ..fetch.fetch_base import Fetch_Base
+from ..fetch.bytes_fetch import Bytes_Fetch
+from ..fetch.string_fetch import String_Fetch
 
 
 class Master_Fetch():
@@ -137,9 +139,12 @@ class Master_Fetch():
         '''Deregisters fetch class'''
         Master_Fetch.fetch_classes.clear()
 
+
 # register fetch classes
 Master_Fetch.register_fetch_class(File_Fetch)
 Master_Fetch.register_fetch_class(Web_Fetch)
+Master_Fetch.register_fetch_class(String_Fetch)
+Master_Fetch.register_fetch_class(Bytes_Fetch)
 
 if __name__ == "__main__":
     url = 'http://docs.python.org/library/tempfile.html'
