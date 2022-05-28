@@ -86,6 +86,7 @@ class Master_Parse():
         '''Returns file with text extracted from fetch_obj\n
         fetch_obj - fetch object with data to parse'''
         parse_object = Master_Parse.get_parse_object(fetch_obj)
+        parse_object.text_to_file()
         return parse_object.get_text_file_copy()
 
     @staticmethod
@@ -93,7 +94,8 @@ class Master_Parse():
         '''Returns file with html extracted from fetch_obj\n
         fetch_obj - fetch object with data to parse'''
         parse_object = Master_Parse.get_parse_object(fetch_obj)
-        return parse_object.get_htmlfile_copy()
+        parse_object.html_to_file()
+        return parse_object.get_html_file_copy()
 
     @staticmethod
     def register_parse_class(parse_class: Type[Parse_Base]) -> None:

@@ -24,6 +24,12 @@ from pdfminer.high_level import extract_text
 from .parse_base import Parse_Base
 
 
+pdf_devices = {
+    "text": TextConverter,
+    "html": HTMLConverter
+}
+
+
 class PDF_Parse(Parse_Base):
     '''Parses pdf data from fetch object'''
     # fetch object with pdf is expected
@@ -50,7 +56,7 @@ class PDF_Parse(Parse_Base):
         output_string.truncate(0)
         # creates of converter object(convert pdf to another format)
         device = pdf_converter_class(pdf_res_man, output_string, 
-        codec="utf-8", laparams=LAParams(), imagewriter=None)
+        laparams=LAParams(), imagewriter=None)
         # Processor for the content of a PDF page(from its docstring)
         interpreter = PDFPageInterpreter(pdf_res_man, device)
         for page in PDFPage.create_pages(pdf_doc):
@@ -65,8 +71,12 @@ class PDF_Parse(Parse_Base):
 
     def html_to_file(self):
         '''Parses html and store it to file'''
-        PDF_Parse._pdf_convert(self.html_file, self.doc, 
+        bytes_file = BytesIO()
+        PDF_Parse._pdf_convert(bytes_file, self.doc, 
         self.pdf_res_man, HTMLConverter)
+        bytes_file.seek(0)
+        for line in bytes_file:
+            self.html_file.write(line.decode())
         return self.html_file
 
 if __name__ == "__main__":

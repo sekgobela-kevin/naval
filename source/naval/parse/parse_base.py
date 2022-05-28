@@ -1,4 +1,4 @@
-from io import IOBase
+from io import BytesIO, IOBase, StringIO
 import tempfile
 import mimetypes
 import shutil
@@ -30,9 +30,10 @@ class Parse_Base():
         #self.doc = self.create_doc()
         self.doc = self.create_doc()
         # file object to store extracted text 
-        self.text_file = self.create_file()
+        self.text_file = self.create_file(False, mode="w+")
         # file object to store extracted HTML
-        self.html_file = self.create_file()
+        # this file is opened in binary mode
+        self.html_file = self.create_file(False, mode="w+")
         # files should always be opened in text mode
         # fetch object files be opened in binary mode
 
@@ -46,10 +47,10 @@ class Parse_Base():
         source_text - text of source e.g file path, url, etc'''
         if not isinstance(source_text, str):
             err_msg = "source_text should only be string"
-            raise TypeError(err_msg, type(source_text))   
+            raise TypeError(err_msg, type(source_text)) 
         if not mimetypes.inited: mimetypes.init()
         fetch_type = mimetypes.guess_type(source_text)[0]
-        if fetch_type:
+        if fetch_type and cls.fetch_content_type != None:
             # "in" would allow to match only 'text' in text/html
             return cls.fetch_content_type in fetch_type
         return False 
@@ -64,18 +65,23 @@ class Parse_Base():
             err_msg = "fetch_obj is not created from Fetch_Base or its subclass"
             raise TypeError(err_msg, type(fetch_obj))
         fetch_content_type = fetch_obj.get_content_type()
-        if fetch_content_type:
+        if fetch_content_type and cls.fetch_content_type != None:
             return cls.fetch_content_type in fetch_content_type
         return False
 
-    def create_file(self, *args, **kwarg) -> IOBase:
+    def create_file(self, in_memory, **kwarg) -> IOBase:
         '''Returns file object to stored parsed data\n
-        *args, **kwarg - arguments to pass to TemporaryFile()/open()'''
+        **kwarg - arguments to pass to TemporaryFile()/open()\n
+        in_memory - specified if file be created in memory'''
+        if in_memory:
+            if "b" in kwarg.get("mode", ""):
+                return BytesIO()
+            return StringIO()
         # files should always be opened in text mode
-        return tempfile.TemporaryFile(mode="w+", *args, **kwarg)
+        return tempfile.TemporaryFile(**kwarg)
 
     def is_file_empty(self, file):
-        '''Cehcks if file object is empty'''
+        '''Chcks if file object is empty'''
         file.seek(0,2)
         return file.tell() == 0
     
@@ -106,15 +112,16 @@ class Parse_Base():
         # its contents are copied to temp file
         temp_file = tempfile.TemporaryFile(mode='w+')
         shutil.copyfileobj(file_obj, temp_file)
-        temp_file.seek(0)
         return temp_file
 
     def get_text_file_copy(self):
         '''Returns copy file kept by object'''
+        self.text_file.seek(0)
         return self.get_file_copy(self.text_file)
 
     def get_html_file_copy(self):
         '''Returns copy of file kept by object'''
+        self.html_file.seek(0)
         return self.get_file_copy(self.html_file)
     
     def get_fetch(self):
@@ -123,7 +130,7 @@ class Parse_Base():
     
     def get_title(self):
         '''Extracts title from fetch object'''
-        raise NotImplementedError
+        return None
     
     def get_text(self, *args, **kwargs) -> str or bytes:
         '''Retuns text version of fetch object\n
