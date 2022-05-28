@@ -1,34 +1,26 @@
-from asyncio import streams
-from io import BytesIO, StringIO
-
-from naval import download
-from naval import download_all
-from naval import sources
-
+from io import BytesIO
 import os
 
-from naval.crawler import extract_html
+import naval
+from naval import sources
 
 
 # downloads webpage into 'webpage.html'
-# any path path to file would work
-# file does not need to exists
-download("http://example.com/", "webpage.html")
+naval.download("http://example.com/", os.path.join("downloads","webpage.html"))
 
 # download into file like object
 # download() works for both file path and file like object
 bytes_file = BytesIO()
-download("http://example.com/", bytes_file)
+naval.download("http://example.com/", bytes_file)
 
 
 # download webpages at example.com and google.com
 # files will be written to "downloads" folder
 # "downloads" can be any directory
 # "http://example.com/" will result file named http_example.com.html
-download_all("downloads", ["http://example.com/", "http://google.com/"])
+naval.download_all("downloads", ["http://example.com/", "http://google.com/"])
 
-# download webpages from urls of html
-# this good for downloading other webpages related to certain webpage
+# downloads webpages from urls of html
 # extract_html() extract html from webpage in the url
-html = extract_html("http://google.com/")
-download_all("downloads", sources.get_urls_from_html(html))
+html = naval.extract_html("http://google.com/")
+naval.download_all("downloads", sources.get_urls_from_html(html))
