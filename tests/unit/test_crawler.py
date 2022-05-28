@@ -95,6 +95,12 @@ class Test_Extract_Functions(unittest.TestCase):
         self.html = "<div>html code</div>"
         self.html_text = "html code"
 
+        # unittest seems to run tests concurrently
+        # other tests may deregister parse classes especially
+        # Test_Register_Parse does deregister parse classes
+        register_parse_class(HTML_Parse)
+        register_parse_class(Text_Parse)
+
     def tearDown(self):
         self.file_object.close()
         self.file_object2.close()
