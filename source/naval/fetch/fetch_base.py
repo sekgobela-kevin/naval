@@ -117,8 +117,8 @@ class Fetch_Base():
         self.file.seek(0, 2)
         return self.file.tell() == 0
 
-    @staticmethod
-    def open(source: str, *args, **kwargs) -> io.IOBase:
+    @classmethod
+    def open(cls, source: str, *args, **kwargs) -> io.IOBase:
         '''Opens temporary file in binary mode\n
         source - url, filepath, file object, etc\n
         *args- optional arguments to pass to TemporaryFile()\n
@@ -126,33 +126,33 @@ class Fetch_Base():
         # files should always be opened in binary mode
         return tempfile.TemporaryFile(mode="w+b", *args, **kwargs)
 
-    @staticmethod
-    def is_source_valid(source: str) -> bool:
+    @classmethod
+    def is_source_valid(cls, source: str) -> bool:
         '''Checks if source is valid\n
         source - url, filepath, file object, etc\n'''
         raise NotImplementedError()
 
-    @staticmethod
-    def is_source_active(source: str) -> bool:
+    @classmethod
+    def is_source_active(cls, source: str) -> bool:
         '''Checks if data in source is accessible\n
         source - url, filepath, file object, etc\n'''
-        raise NotImplementedError()
+        raise cls.is_source_valid(source)
 
-    @staticmethod
-    def get_unknown_source(*args):
+    @classmethod
+    def get_unknown_source(cls, *args):
         '''Creates random source in case source is not known'''
         right_part = ""
         for arg in args:
             right_part += arg
-        return f"{Fetch_Base.unknown_source_prefix}_{right_part}_{time.time()}"
+        return f"{cls.unknown_source_prefix}_{right_part}_{time.time()}"
 
-    @staticmethod
-    def is_source_unknown(source: str):
+    @classmethod
+    def is_source_unknown(cls, source: str):
         '''Checks if source text was auto generated\n
         source - url, filepath, file object, etc\n'''
         if not isinstance(source, str):
             TypeError("source should be string not ", type(source))
-        return Fetch_Base.unknown_source_prefix in source
+        return cls.unknown_source_prefix in source
 
 
     def read(self, *args, **kwagrs) -> str:

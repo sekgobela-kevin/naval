@@ -4,10 +4,7 @@ from urllib.request import urlopen
 from urllib.parse import urlparse
 from requests.adapters import HTTPAdapter
 import requests, mimetypes
-import logging
 
-
-from pdfminer.high_level import extract_text
 import os, sys, io
 import tempfile
 
@@ -46,8 +43,8 @@ class Web_Fetch(Fetch_Base):
             source_text += " .html"
         return mimetypes.guess_type(source_text)[0]
 
-    @staticmethod
-    def is_source_valid(source: str) -> bool:
+    @classmethod
+    def is_source_valid(cls, source: str) -> bool:
         '''Checks if source is valid'''
         if not isinstance(source, str):
             raise TypeError(f"source should be string not ", type(source))

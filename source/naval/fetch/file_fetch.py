@@ -1,5 +1,6 @@
 import mimetypes
 from ..fetch.fetch_base import Fetch_Base
+from ..utility import directories
 
 import tempfile
 import os, sys, io
@@ -20,8 +21,8 @@ class File_Fetch(Fetch_Base):
         return its path or file name'''
         return cls.get_filename(source)
 
-    @staticmethod
-    def open(source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
+    @classmethod
+    def open(cls, source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
         '''Opens file and return file object\n
         source - file object or path to file\n
         *args- optional arguments to pass to file.open()\n
@@ -30,15 +31,20 @@ class File_Fetch(Fetch_Base):
             raise TypeError("source: should be file obj or string not ", 
             type(source))
         if isinstance(source, str):
-            if File_Fetch.is_source_valid(source):
+            if cls.is_source_valid(source):
                 return open(source, mode="rb", *args, **kwargs)
             else:
                 raise ValueError(f"source({source}) not pointing to valid file")
         # then source arg refers to file object
         return source
 
-    @staticmethod
-    def is_file_path_valid(filePath):
+    @classmethod
+    def is_file_path_valid(cls, filePath):
+        # file_ext = directories.get_file_extension(filePath)
+        # if not (os.sep in filePath or file_ext):
+        #     # path is invalid without path seperator or extension
+        #     # prevent matching of ordinary strings
+        #     return False
         if not os.access(filePath, os.W_OK):
             try:
                 open(filePath, 'w').close()
@@ -48,23 +54,23 @@ class File_Fetch(Fetch_Base):
                 return False
         return True
     
-    @staticmethod
-    def is_source_valid(source: str or io.IOBase) -> bool:
+    @classmethod
+    def is_source_valid(cls, source: str or io.IOBase) -> bool:
         '''Checks if source is valid'''
         if not isinstance(source, (str, io.IOBase)):
             raise TypeError("file should be file obj or string not ", type(source))
         if isinstance(source, io.IOBase):
             # file object is valid on its own
             return True
-        elif File_Fetch.is_source_unknown(source):
+        elif cls.is_source_unknown(source):
             # source was autotimatially created
             # it was validated before it got created
             return True
         # if all the above fails, then source might be file path
-        return File_Fetch.is_file_path_valid(source)
+        return os.path.isfile(source)
 
-    @staticmethod
-    def is_source_active(source: str) -> bool:
+    @classmethod
+    def is_source_active(cls, source: str) -> bool:
         '''Checks if data in source is accessible'''
         if not isinstance(source, (str, io.IOBase)):
             raise TypeError("file should be file obj or string not ", type(source))
@@ -72,7 +78,7 @@ class File_Fetch(Fetch_Base):
             # file object is active on its own
             return True
         # get string version of source incase source is file object
-        source = File_Fetch.get_filename(source)
+        source = cls.get_filename(source)
         # its possible that data in file not be readable
         # os.access() may be better
         return os.path.isfile(source)
