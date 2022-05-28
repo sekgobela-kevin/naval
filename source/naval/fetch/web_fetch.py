@@ -77,12 +77,9 @@ class Web_Fetch(Fetch_Base):
             raise TypeError(f"url should be string not ", type(url))
         parsed = urlparse(url)
         filename = f"{parsed.scheme}_{parsed.netloc}_{parsed.path}"
+        # this requires regex(but it works)
         filename = filename.replace("/", "_")
-        # add .html to filename if no path part to url
-        # its likely to be webpage which is mostly HTML
-        if not parsed.path:
-            filename += ".html"
-        return filename
+        return filename.strip("_")
 
     @classmethod
     def fetch_to_file(cls, source: str, file: io.FileIO, timeout=60,
