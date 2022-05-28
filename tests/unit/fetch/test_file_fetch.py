@@ -28,16 +28,16 @@ class Test_File_Fetch(unittest.TestCase):
         with self.assertRaises(TypeError):
             # only str and file object allowed as source
             fetch_obj.open(44)   
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(ValueError):
             # "path to file" is not path to file
             fetch_obj.open("path to file")   
 
     def test_is_source_valid(self):
+        # is_source_valid() only checks if source is file
         self.assertTrue(File_Fetch.is_source_valid(self.file_object))
         self.assertTrue(File_Fetch.is_source_valid(__file__))
-        # this is valid file path(relative)
-        # "folder/path to file" is invalid(bad)
-        self.assertTrue(File_Fetch.is_source_valid("path to file"))
+        # "path to file" is not a file
+        self.assertFalse(File_Fetch.is_source_valid("path to file"))
         # this cant be a valid path
         self.assertFalse(File_Fetch.is_source_valid("path/%$to\/file\//"))
         with self.assertRaises(TypeError):
