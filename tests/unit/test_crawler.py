@@ -92,6 +92,8 @@ class Test_Extract_Functions(unittest.TestCase):
         self.file_object = open(self.file_path)
         self.file_path2 = "file.txt"
         self.file_object2 = open(self.file_path2, "w+")
+        self.html = "<div>html code</div>"
+        self.html_text = "html code"
 
     def tearDown(self):
         self.file_object.close()
@@ -108,6 +110,12 @@ class Test_Extract_Functions(unittest.TestCase):
         self.assertGreater(len(extract_text(self.file_object)), 0)
         # test with empty file
         self.assertEqual(len(extract_text(self.file_path2)), 0)
+        text = extract_text(self.html, content_type="html", 
+        source_locates_data=False)
+        self.assertEqual(text.strip(), self.html_text)
+        with self.assertRaises(Exception):
+            # source is invalid(no fetch class)
+            extract_text(self.html, content_type="html")
 
     def test_extract_html(self):
         # not yet implemetened to text files

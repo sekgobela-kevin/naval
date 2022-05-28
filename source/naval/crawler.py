@@ -101,7 +101,8 @@ def download_all(folder_path: str, urls: List[str]) -> None:
         download(url, filepath)
 
 
-def create_fetch_object(source, **kwargs) -> Fetch_Base:
+def create_fetch_object(source, source_locates_data=True,
+content_type=None) -> Fetch_Base:
     '''Returns fetch with data for source\n
     source - url, file path or gile object, etc\n
     source_locates_data(optional) - true if source is resource locator 
@@ -112,10 +113,14 @@ def create_fetch_object(source, **kwargs) -> Fetch_Base:
     # list() also returns list if passed list
     if isinstance(source, Fetch_Base):
         return source
-    if not Master_Fetch.fetch_class_exists(source):
+    if not Master_Fetch.fetch_class_exists(source, 
+    source_locates_data=source_locates_data):
+        # check content type or source_locates_data argument
         err_msg = f"source({source}) is not fetchable(no fetch class)"
         raise Exception(err_msg)
-    fetch_obj = Master_Fetch.get_fetch_object(source, **kwargs)
+    fetch_obj = Master_Fetch.get_fetch_object(source, 
+    source_locates_data=source_locates_data,
+    content_type=content_type)
     fetch_obj.request()
     # Fetch(source) could also work
     return fetch_obj
