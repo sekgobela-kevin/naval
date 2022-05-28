@@ -24,6 +24,13 @@ class Test_Sources_Methods(unittest.TestCase):
     def test_get_url_path(self):
         self.assertEqual(get_url_path(self.file_url), "/file.pdf")
 
+    def test_is_webpage(self):
+        self.assertTrue(is_webpage("https://www.example.com/"))
+        self.assertTrue(is_webpage("https://www.example.com"))
+        self.assertTrue(is_webpage("https://www.example.com/file.html"))
+        self.assertFalse(is_webpage("https://www.example.com/file.txt"))
+        self.assertFalse(is_webpage("folder/file.html"))
+
     def test_is_local_file(self):
         self.assertTrue(is_local_file(self.local_file_path))
         self.assertFalse(is_local_file(self.file_url))

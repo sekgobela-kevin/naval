@@ -13,7 +13,8 @@ def is_url(source: str):
     source - resource locator e.g url, filepath'''
     try:
         parsed = urlparse(source )
-        return all([parsed.scheme, parsed.netloc])
+        if all([parsed.scheme, parsed.netloc]):
+            return parsed.scheme in ["http", "https"]
     except:
         return False
 
@@ -40,6 +41,16 @@ def is_web_file(source: str):
         url_path = urlparse(source).path
         # its  file if it has extension
         return bool(directories.get_file_extension(url_path))
+    return False
+
+def is_webpage(source: str):
+    '''Checks if source is url points to webpage'''
+    if is_url(source):
+        if not is_web_file(source):
+            return True
+        path_part = get_url_path(source)
+        ext_type = mimetypes.guess_type(path_part)[0]
+        return ext_type == mimetypes.guess_type(" .html")[0]
     return False
 
 def is_file(source: str):
