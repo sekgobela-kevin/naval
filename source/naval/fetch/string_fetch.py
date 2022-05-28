@@ -6,7 +6,7 @@ from .file_fetch import File_Fetch
 class String_Fetch(File_Fetch):
     '''Fetches data from string'''
     # specifies if source points to data
-    source_points_data = False
+    source_locates_data = False
 
     def __init__(self, source:str, content_type:str=None, encoding='utf8', **kwargs):
         '''source - sequence of characters(string)\n
@@ -16,14 +16,19 @@ class String_Fetch(File_Fetch):
         bytes_file = BytesIO(source.encode(encoding=encoding))
         super().__init__(bytes_file, content_type, **kwargs)
 
-    @staticmethod
-    def is_source_valid(source: str) -> bool:
+    @classmethod
+    def is_source_valid(cls, source: str) -> bool:
         '''Checks if source is valid\n
         source - sequence of characters(string)\n'''
         # source should only be string not file object
         # File_Fetch accepts also file object
         return isinstance(source, str)
 
+    @classmethod
+    def is_source_active(cls, source: str) -> bool:
+        '''Checks if source is active\n
+        source - sequence of characters(string)\n'''
+        return cls.is_source_valid(source)
 
 if __name__ == "__main__":
     fetch_obj = String_Fetch("This is string", content_type=" .txt")
