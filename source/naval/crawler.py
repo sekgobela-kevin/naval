@@ -92,9 +92,8 @@ def download_all(folder_path: str, urls: List[str]) -> None:
     for url in urls:
         # create filename from url
         filename = Web_Fetch.get_filename_from_url(url)
-        # add .html to filename if not path part to url
-        # its likely to be webpage which is mostly HTML
-        if not sources.get_url_path(url):
+        # give filename html extension if needed
+        if sources.is_webpage(url) and not sources.is_html_file(filename):
             filename += ".html"
         filepath = os.path.join(folder_path, filename)
         # download data in url and store to filepath
