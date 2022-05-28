@@ -101,9 +101,13 @@ def download_all(folder_path: str, urls: List[str]) -> None:
         download(url, filepath)
 
 
-def create_fetch_object(source) -> Fetch_Base:
+def create_fetch_object(source, **kwargs) -> Fetch_Base:
     '''Returns fetch with data for source\n
-    source - url, file path or gile object, etc'''
+    source - url, file path or gile object, etc\n
+    source_locates_data(optional) - true if source is resource locator 
+    e.g url, file path, default True.\n
+    content_type(optional) - content type of data to be fetched. E.g 
+    html, .html or text/html. Default is None'''
     # returns that fetch object if fetch is fetch object
     # list() also returns list if passed list
     if isinstance(source, Fetch_Base):
@@ -111,22 +115,25 @@ def create_fetch_object(source) -> Fetch_Base:
     if not Master_Fetch.fetch_class_exists(source):
         err_msg = f"source({source}) is not fetchable(no fetch class)"
         raise Exception(err_msg)
-    fetch_obj = Master_Fetch.get_fetch_object(source)
+    fetch_obj = Master_Fetch.get_fetch_object(source, **kwargs)
     fetch_obj.request()
     # Fetch(source) could also work
     return fetch_obj
 
-def create_parse_object(fetch_input) -> Parse_Base:
+def create_parse_object(fetch_input, **kwargs) -> Parse_Base:
     '''Returns parse object for fetch object or fetch source\n
-    fetch_input - source(url, file path, etc) or fetch object'''
+    fetch_input - source(url, file path, etc) or fetch object\n
+    source_locates_data(optional) - true if source is resource locator 
+    e.g url, file path, default True.\n
+    content_type(optional) - content type of data to be fetched. E.g 
+    html, .html or text/html. Default is None'''
     # returns the parse object if fetch_input is parse object
     # users wont notice anything
     # list() returns list if passed list
     if isinstance(fetch_input, Parse_Base):
         return fetch_input
-    else:
-        # fetch_input is source or fetch object
-        fetch_obj = create_fetch_object(fetch_input)
+    # fetch_input is source or fetch object
+    fetch_obj = create_fetch_object(fetch_input, **kwargs)
     if not Master_Parse.is_fetch_parsable(fetch_obj):
         # parse class wasnt registed or problem with source extension
         source = fetch_obj.get_source
@@ -135,43 +142,56 @@ def create_parse_object(fetch_input) -> Parse_Base:
     # Parse(fetch_obj) could also work
     return Master_Parse.get_parse_object(fetch_obj)
 
-def create_crawl_object(source):
+def create_crawl_object(source, *args, **kwargs):
     '''Creates and returns crawl object\n 
-    source - url, file path or gile object, etc'''
-    return Crawl(source)
+    source - url, file path or gile object, etc\n
+    *args, **kwargs - optional arguments to pass to constructor'''
+    return Crawl(source, **args, **kwargs)
 
 
-def extract_text(parse_input) -> str:
-    '''Extract text from source, fetch object or parse object\n
-    parse_input - source(url, file path, etc), fetch object or parse object'''
-    return create_parse_object(parse_input).get_text()
-
-def extract_html(parse_input) -> str:
-    '''Extract html from source, fetch object or parse object\n
-    parse_input - source(url, file path, etc), fetch object or parse object'''
-    return create_parse_object(parse_input).get_html()
-
-def extract_text_to_file(parse_input, dest_file) -> str:
+def extract_text(parse_input, **kwargs) -> str:
     '''Extract text from source, fetch object or parse object\n
     parse_input - source(url, file path, etc), fetch object or parse object\n
-    dest_file - destination string file path or file like object'''
+    source_locates_data(optional) - true if source is resource locator 
+    e.g url, file path, default True.\n
+    content_type(optional) - content type of data to be fetched. E.g 
+    html, .html or text/html. Default is None'''
+    return create_parse_object(parse_input, **kwargs).get_text()
+
+def extract_html(parse_input, **kwargs) -> str:
+    '''Extract html from source, fetch object or parse object\n
+    parse_input - source(url, file path, etc), fetch object or parse object'''
+    return create_parse_object(parse_input, **kwargs).get_html()
+
+def extract_text_to_file(parse_input, dest_file, **kwargs) -> str:
+    '''Extract text from source, fetch object or parse object\n
+    parse_input - source(url, file path, etc), fetch object or parse object\n
+    dest_file - destination string file path or file like object\n
+    source_locates_data(optional) - true if source is resource locator 
+    e.g url, file path, default True.\n
+    content_type(optional) - content type of data to be fetched. E.g 
+    html, .html or text/html. Default is None'''
     # this is a temporary solution
     # get_parse_object() returns parse object with file closed
     # __del__ was called as end of function was reached
     # solution is to use context managers(with statement)
     dest_file_obj = files.get_file_object(dest_file, mode="w")
-    dest_file_obj.write(extract_text(parse_input))
+    dest_file_obj.write(extract_text(parse_input, **kwargs))
     # close file if dest_file argument is not file like object
     # users will manually close the file object
     if not isinstance(dest_file, IOBase):
         dest_file_obj.close()
 
-def extract_html_to_file(parse_input, dest_file) -> str:
+def extract_html_to_file(parse_input, dest_file, **kwargs) -> str:
     '''Extract text from source, fetch object or parse object\n
     parse_input - source(url, file path, etc), fetch object or parse object\n
-    dest_file - destination string file path or file like object'''
+    dest_file - destination string file path or file like object\n
+    source_locates_data(optional) - true if source is resource locator 
+    e.g url, file path, default True.\n
+    content_type(optional) - content type of data to be fetched. E.g 
+    html, .html or text/html. Default is None'''
     dest_file_obj = files.get_file_object(dest_file, mode="w")
-    dest_file_obj.write(extract_html(parse_input))
+    dest_file_obj.write(extract_html(parse_input, **kwargs))
     # close file if dest_file argument is not file like object
     # users will manually close the file object
     if not isinstance(dest_file, IOBase):
