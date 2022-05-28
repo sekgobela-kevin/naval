@@ -15,11 +15,13 @@ class Test_Master_Fetch(unittest.TestCase):
         self.file_path = __file__ 
         self.file_path2 = "file.txt" 
         self.file_obj = open(__file__, 'rb')
+        self.text = "this is text"
 
         # register fetch classes
         # dont remove this
         Master_Fetch.register_fetch_class(File_Fetch)
         Master_Fetch.register_fetch_class(Web_Fetch)
+        Master_Fetch.register_fetch_class(String_Fetch)
         
     def tearDown(self):
         self.file_obj.close()
@@ -28,52 +30,60 @@ class Test_Master_Fetch(unittest.TestCase):
     def test_is_source_valid(self):
         # test if it works for file paths
         self.assertTrue(Master_Fetch.is_source_valid(self.file_path))
-        self.assertTrue(Master_Fetch.is_source_valid(self.file_obj))
-        # test if it works for urls
-        self.assertTrue(Master_Fetch.is_source_valid(self.url))
-        # invalid argument shouldnt raise an error
-        # it should rather be invalid
-        self.assertFalse(Master_Fetch.is_source_valid([]))
+        self.assertFalse(Master_Fetch.is_source_valid(self.text))
+        # String_Fetch should match
+        self.assertTrue(Master_Fetch.is_source_valid(self.text, 
+        source_locates_data=False))
 
     def test_is_source_active(self):
         # test if it works for file paths
         self.assertTrue(Master_Fetch.is_source_active(self.file_path))
         self.assertTrue(Master_Fetch.is_source_active(self.file_obj))
-        # test if it works for urls
-        self.assertTrue(Master_Fetch.is_source_active(self.url))
         # self.file_path2 is valid but not active
         # error shouldnt be raised
         self.assertFalse(Master_Fetch.is_source_active(self.file_path2))
+        # applies to String_Fetch
+        self.assertFalse(Master_Fetch.is_source_active(self.text))
+        self.assertTrue(Master_Fetch.is_source_active(self.text, 
+        source_locates_data=False))
 
     def test_fetch_class_exists(self):
         # check if fetch class is valid
         # it just checks if source is valid
         self.assertTrue(Master_Fetch.fetch_class_exists(self.file_path))
-        self.assertTrue(Master_Fetch.fetch_class_exists(self.url))
         # empty string is invalid, no fetch class for it
         self.assertFalse(Master_Fetch.fetch_class_exists(""))
+        # applies to String_Fetch
+        self.assertFalse(Master_Fetch.fetch_class_exists(self.text))
+        self.assertTrue(Master_Fetch.fetch_class_exists(self.text, 
+        source_locates_data=False))
+
 
     def test_get_fetch_class(self):
         # check if corresponding fetch class is returned
         fetch_class = Master_Fetch.get_fetch_class(self.file_path)
-        self.assertTrue(fetch_class, File_Fetch)
+        self.assertEqual(fetch_class, File_Fetch)
         fetch_class = Master_Fetch.get_fetch_class(self.file_obj)
-        self.assertTrue(fetch_class, File_Fetch)
-        # error be raised if fetch class not found
-        with self.assertRaises(Exception):
-            self.assertTrue("")
+        self.assertEqual(fetch_class, File_Fetch)
+        # applies to String_Fetch
+        fetch_class = Master_Fetch.get_fetch_class(
+            self.file_path, 
+            source_locates_data=False)
+        self.assertEqual(fetch_class, String_Fetch)
 
     def test_get_fetch_object(self):
         # check if corresponding fetch class is returned
         fetch_object = Master_Fetch.get_fetch_object(self.file_path)
         self.assertIsInstance(fetch_object, File_Fetch)
         fetch_object.close()
-        fetch_object = Master_Fetch.get_fetch_object(self.url)
-        self.assertIsInstance(fetch_object, Web_Fetch)
-        fetch_object.close()
+        fetch_object = Master_Fetch.get_fetch_object(
+            self.file_path, 
+            source_locates_data=False
+        )
+        self.assertIsInstance(fetch_object, String_Fetch)
         # error be raised if fetch class of object not found
         with self.assertRaises(Exception):
-            self.assertTrue("")
+            self.assertTrue(Master_Fetch.get_fetch_object(""))
 
     def test_get_file(self):
         file = Master_Fetch.get_file(self.file_path)
@@ -115,11 +125,6 @@ class Test_Master_Fetch(unittest.TestCase):
         Master_Fetch.register_fetch_class(File_Fetch)
         # fetch class should now exists
         self.assertTrue(Master_Fetch.fetch_class_exists(self.file_path))
-        # this one wasnt registered
-        self.assertFalse(Master_Fetch.fetch_class_exists(self.url))
-        Master_Fetch.register_fetch_class(Web_Fetch)
-        # now its registered
-        self.assertTrue(Master_Fetch.fetch_class_exists(self.url))
 
     def test_deregister_fetch_classes(self):
         # web fetch class should exists

@@ -25,11 +25,9 @@ class Master_Fetch():
             # handle execption in case a source not supported
             # Web_Fetch does not support file object
             try:
-                if source_locates_data != fetch_class.source_locates_data:
-                    continue
-                isvalid =  fetch_class.is_source_valid(source)
-                if isvalid:
-                    return True
+                if source_locates_data == fetch_class.source_locates_data:
+                    isvalid =  fetch_class.is_source_valid(source)
+                    if isvalid: return True
             except(ValueError, TypeError):
                 pass
         return False
@@ -42,10 +40,9 @@ class Master_Fetch():
             # handle execption in case a source not supported
             # Web_Fetch does not support file object
             try:
-                if source_locates_data != fetch_class.source_locates_data:
-                    continue
-                isactive =  fetch_class.is_source_active(source)
-                if isactive: return True
+                if source_locates_data == fetch_class.source_locates_data:
+                    isactive =  fetch_class.is_source_active(source)
+                    if isactive: return True
             except(ValueError, TypeError):
                 pass
         return False
@@ -61,22 +58,22 @@ class Master_Fetch():
         fetch_classes = []
         for fetch_class in Master_Fetch.fetch_classes:
             try:
-                if source_locates_data != fetch_class.source_locates_data:
-                    continue
-                if fetch_class.is_source_valid(source):
-                    fetch_classes.append(fetch_class)
+                if source_locates_data == fetch_class.source_locates_data:
+                    if fetch_class.is_source_valid(source):
+                        fetch_classes.append(fetch_class)
             except(ValueError, TypeError):
                 continue
-        if fetch_classes:
-            return fetch_classes[0]
+        if fetch_classes: return fetch_classes[0]
         raise Exception(f"fetch class for source({source}) not found")
 
     @staticmethod
     def get_fetch_object(source, source_locates_data=True, **kwargs) -> Fetch_Base:
         '''returns fetch object for source if fetch class exists'''
         # check if source is active before creating fetch objetc
+        if not Master_Fetch.is_source_valid(source, source_locates_data):
+            raise Exception(f"source({source}) is not fetchable(no fetch class)")
         if not Master_Fetch.is_source_active(source, source_locates_data):
-            raise Exception(f"source({source}) is not active")
+            raise Exception(f"source({source}) is not fetchable(not active)")
         fetch_class = Master_Fetch.get_fetch_class(source, source_locates_data)
         return fetch_class(source, **kwargs)
 
