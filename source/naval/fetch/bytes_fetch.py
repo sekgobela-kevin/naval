@@ -1,5 +1,4 @@
-from ast import Bytes
-from io import BytesIO
+from io import BytesIO, IOBase
 from .file_fetch import File_Fetch
 
 
@@ -13,8 +12,7 @@ class Bytes_Fetch(File_Fetch):
         content_type - content type for data in bytes\n
         **kwargs - optional keywords args to pass to base class(File_Fetch)
         '''
-        bytes_file = BytesIO(source)
-        super().__init__(bytes_file, content_type, **kwargs)
+        super().__init__(source, content_type, **kwargs)
 
     @classmethod
     def is_source_valid(cls, source: str) -> bool:
@@ -29,6 +27,11 @@ class Bytes_Fetch(File_Fetch):
         '''Checks if source is valid\n
         source - sequence of bytes(Bytes obect)\n'''
         return cls.is_source_valid(source)
+
+    @classmethod
+    def open(cls, source: IOBase) -> IOBase:
+        file = BytesIO(source)
+        return file
 
 if __name__ == "__main__":
     fetch_obj = Bytes_Fetch(b"sequence of bytes", content_type=" .pdf")

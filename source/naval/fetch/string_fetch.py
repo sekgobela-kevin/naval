@@ -1,5 +1,4 @@
-from ast import Bytes
-from io import BytesIO
+from io import BytesIO, IOBase
 from .file_fetch import File_Fetch
 
 
@@ -8,13 +7,12 @@ class String_Fetch(File_Fetch):
     # specifies if source points to data
     source_locates_data = False
 
-    def __init__(self, source:str, content_type:str=None, encoding='utf8', **kwargs):
+    def __init__(self, source:str, content_type:str=None, **kwargs):
         '''source - sequence of characters(string)\n
         content_type - content type for data in string\n
         **kwargs - optional keywords args to pass to base class(File_Fetch)
         '''
-        bytes_file = BytesIO(source.encode(encoding=encoding))
-        super().__init__(bytes_file, content_type, **kwargs)
+        super().__init__(source, content_type, **kwargs)
 
     @classmethod
     def is_source_valid(cls, source: str) -> bool:
@@ -29,6 +27,12 @@ class String_Fetch(File_Fetch):
         '''Checks if source is active\n
         source - sequence of characters(string)\n'''
         return cls.is_source_valid(source)
+
+    @classmethod
+    def open(cls, source: IOBase, encoding='utf8') -> IOBase:
+        file = BytesIO(source.encode(encoding=encoding))
+        return file
+
 
 if __name__ == "__main__":
     fetch_obj = String_Fetch("This is string", content_type=" .txt")
