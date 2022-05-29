@@ -37,15 +37,31 @@ with open(pdf_file_path, "rb") as file:
 # Fetch class is used to create object for fetching data
 # Data can be fetched from url, file path or file like objects
 fetch_obj = Fetch(pdf_file_path)
+# here fetch obect is created from url
 fetch_obj = Fetch("http://example.com/")
+# and from file object
 fetch_obj = Fetch(BytesIO(b"some bytes"))
+
+# specified content type as pdf(useful when parsing)
+fetch_obj = Fetch(pdf_file_path)
+print(fetch_obj.get_content_type())
+# application/pdf
+
+# source_locates_data prevent html from being seen as url
+# our html is our content(data) not resource locator(file path, url, etc)
+html = "<p> this is html paragraph</a>"
+# its also worth to provide content type(useful when parsing)
+fetch_obj = Fetch(html, source_locates_data=False)
+print(fetch_obj.read())
+# b'<p> this is html paragraph</a>'
+
+
 
 
 
 ##################################
 #    YOU MAY FIND THIS USEFUL    #
 ##################################
-
 
 # fetch object methods and attributes
 fetch_obj = Fetch("http://example.com/")
@@ -75,7 +91,6 @@ fetch_obj.fetch(fetch_obj.get_source())
 
 # reads data from from file(one returned by get_file())
 # same arguments as file.read()
-# remeber to seek() on file
 fetch_obj.read()
 
 
@@ -100,7 +115,8 @@ def download_webpage(url):
     # dont forget to request for data
     # error will be raised if it fails to fetch data
     fetch_obj.request()
-    fetch_obj.get_file().seek(0)
+    #fetch_obj.get_file().seek(0)
+    # no need to seek the file
     return fetch_obj.read()
 
 webpage_html = download_webpage("http://example.com/")
@@ -111,8 +127,6 @@ def read_file(file_path):
     fetch_obj = Fetch(file_path)
     # no need to request
     # fetch_obj.get_file() points to file in path
-    # dont forget to seek() to beginning
-    fetch_obj.get_file().seek(0)
     return fetch_obj.read()
 
 pdf_bytes = read_file(pdf_file_path)
@@ -122,10 +136,9 @@ pdf_bytes = read_file(pdf_file_path)
 def read_file_like_obj(file_obj):
     # file like object is also supported
     fetch_obj = Fetch(file_obj)
-    # dont forget to seek to the beginning
-    fetch_obj.get_file().seek(0)
-    return fetch_obj.get_file().read()
+    return fetch_obj.read()
 
 
 file_obj = BytesIO(b"sequence of bytes")
 read_bytes = read_file_like_obj(file_obj)
+#print(read_bytes)
