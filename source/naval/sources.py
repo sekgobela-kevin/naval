@@ -25,10 +25,21 @@ def get_url_path(url: str) -> None or str:
 
 def is_local_file(source: str):
     '''Checks if source is a local file path\n
-    source - resource locator e.g url, filepath'''
-    pattern = r"(\b.*)(\/.*?\/)((?:[^\/]|\\\/)+?)(?:(?<!\\)\s|$)"
+    source - file path'''
+    drive_path = os.path.splitdrive(source)
+    path_part = drive_path[1]
+    if drive_path[0] and drive_path[1]:
+        return True
+    elif path_part.endswith(os.sep):
+        return False
+    elif "/" in path_part and "\\" in path_part:
+        return False
     if not is_url(source):
-        return bool(re.search(pattern, source))
+        split_path = source.split(os.sep)
+        if not split_path:
+            return False
+        return len(split_path[-1]) <= 100
+    os.path.splitdrive
     return False
 
     

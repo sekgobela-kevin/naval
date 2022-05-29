@@ -34,7 +34,11 @@ class Test_Sources_Methods(unittest.TestCase):
     def test_is_local_file(self):
         self.assertTrue(is_local_file(self.local_file_path))
         self.assertFalse(is_local_file(self.file_url))
+        self.assertFalse(is_local_file("folder"+os.sep))
+        self.assertTrue(is_local_file("file_name"))
+        self.assertTrue(is_local_file("file_name.txt"))
 
+    def test_is_web_file(self):
         self.assertFalse(is_web_file(self.url))
         self.assertTrue(is_web_file(self.file_url))
         self.assertFalse(is_web_file(self.local_file_path))     
