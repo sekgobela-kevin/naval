@@ -136,7 +136,7 @@ class Fetch_Base():
     def is_source_active(cls, source: str) -> bool:
         '''Checks if data in source is accessible\n
         source - url, filepath, file object, etc\n'''
-        raise cls.is_source_valid(source)
+        return cls.is_source_valid(source)
 
     @classmethod
     def get_unknown_source(cls, *args):

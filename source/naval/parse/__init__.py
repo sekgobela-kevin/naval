@@ -6,3 +6,4 @@ from .html_parse import HTML_Parse
 from .text_parse import Text_Parse
 
 from .parse import Parse
+from .master_parse import Master_Parse

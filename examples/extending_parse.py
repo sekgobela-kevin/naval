@@ -18,7 +18,7 @@ class Parse_Json(Parse_Base):
     '''Parses json from parse'''
     # always try to provide content type
     # this will be useful when registering the class
-    content_type = "text/json"
+    fetch_content_type = "application/json"
     
     def __init__(self, fetch_obj) -> None:
         super().__init__(fetch_obj)

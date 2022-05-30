@@ -140,8 +140,9 @@ def create_parse_object(fetch_input, **kwargs) -> Parse_Base:
     fetch_obj = create_fetch_object(fetch_input, **kwargs)
     if not Master_Parse.is_fetch_parsable(fetch_obj):
         # parse class wasnt registed or problem with source extension
-        source = fetch_obj.get_source
-        err_msg = f"source({source}) is not parsable(no parse class)"
+        source_text = fetch_obj.get_source_text()
+        err_msg = f"fetch object with source_text({source_text}) " +\
+        "is not parsable(no parse class)"
         raise Exception(err_msg)
     # Parse(fetch_obj) could also work
     return Master_Parse.get_parse_object(fetch_obj)
