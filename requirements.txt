@@ -13,6 +13,11 @@ python-pptx
 python-docx
 PyDocX
 pdfminer.six
- 
-# has to do with pip
+
+# ----------------- #
+# for running tests #
+# ----------------- #
+tox
+
+# install in development mode
 -e .

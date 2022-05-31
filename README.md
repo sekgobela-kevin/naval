@@ -41,6 +41,7 @@ Extract text and html
 output_text = naval.extract_text("sample_file.pdf")
 output_text = naval.extract_text("sample_file.pptx")
 output_html = naval.extract_html("sample_file.docx")
+output_text = naval.extract_text("http://example.com/")
 
 # Extract from file like object
 with open("sample_file.pdf", mode="rb") as file:
@@ -63,7 +64,7 @@ with open("sample_file.pdf", mode="rb") as file:
     output_html = naval.extract_html(pdf_bytes, source_locates_data=False, content_type="application/pdf")
 
 ```
-> More examples can be found at `examples/` folder
+> See [examples/](https://github.com/Sekgobela-Kevin/naval/tree/main/examples) folder for more examples
 
 ### Support
 Feel free to open an issue or contact me on [kevinnoko23@gmail.com](mailto:kevinnoko23@gmail.com).  
