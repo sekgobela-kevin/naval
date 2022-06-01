@@ -65,18 +65,16 @@ class PDF_Parse(Parse_Base):
 
     def text_to_file(self):
         '''Parses text and store it to file'''
-        PDF_Parse._pdf_convert(self.text_file, self.doc, 
+        string_file = StringIO()
+        PDF_Parse._pdf_convert(string_file, self.doc, 
         self.pdf_res_man, TextConverter)
-        return self.text_file
+        string_file.seek(0)
+        return self.text_file.writelines(string_file)
 
     def html_to_file(self):
         '''Parses html and store it to file'''
-        bytes_file = BytesIO()
-        PDF_Parse._pdf_convert(bytes_file, self.doc, 
+        PDF_Parse._pdf_convert(self.html_file, self.doc, 
         self.pdf_res_man, HTMLConverter)
-        bytes_file.seek(0)
-        for line in bytes_file:
-            self.html_file.write(line.decode())
         return self.html_file
 
 if __name__ == "__main__":

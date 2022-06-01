@@ -29,7 +29,7 @@ class Text_Parse(Parse_Base):
             try:
                 self.text_file.write(line)
             except TypeError:
-                self.text_file.write(line.decode())
+                self.text_file.write(line.decode(encoding="utf-8"))
         return self.text_file
 
 if __name__ == "__main__":

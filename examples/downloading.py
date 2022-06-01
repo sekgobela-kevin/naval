@@ -5,6 +5,14 @@ import naval
 from naval import sources
 
 
+# creates 'downloads' folder
+downloads_path = "downloads"
+if not os.path.exists(downloads_path):
+    os.makedirs(downloads_path)
+
+
+
+
 # downloads webpage into 'webpage.html'
 naval.download("http://example.com/", os.path.join("downloads","webpage.html"))
 
@@ -23,4 +31,7 @@ naval.download_all("downloads", ["http://example.com/", "http://google.com/"])
 # downloads webpages from urls of html
 # extract_html() extract html from webpage in the url
 html = naval.extract_html("http://google.com/")
-naval.download_all("downloads", sources.get_urls_from_html(html))
+# not all urls from html will be valid in their own
+urls = [url for url in sources.get_urls_from_html(html) if sources.is_url(url)]
+# the first are fine
+naval.download_all("downloads", urls[:3])

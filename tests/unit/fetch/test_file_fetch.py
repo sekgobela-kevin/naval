@@ -1,74 +1,55 @@
-from io import FileIO, IOBase
+from io import BytesIO, FileIO, IOBase
+import os
 import unittest
-import tempfile
+
 from naval.fetch.file_fetch import File_Fetch
+from .common_tests import Common_Tests
 
 
-class Test_File_Fetch(unittest.TestCase):
-    def setUp(self):
-        # carefull not to overide this file
-        self.file_path = __file__
-        self.file_object = tempfile.TemporaryFile()
-        self.file_object2 = open(self.file_path)
-        self.fetch_obj = File_Fetch(self.file_object)
 
-    def tearDown(self):
-        self.file_object.close()
-        self.file_object2.close()
+class Test_File_Fetch(Common_Tests, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = os.path.join("samples", "sample_file.txt")
+        cls.source2 = BytesIO()
+        cls.source3 =  os.path.join("samples", "sample_file")
+
+        cls.fetch_object = File_Fetch(cls.source)
+        cls.fetch_object2 = File_Fetch(cls.source2)
 
     def test_source_to_text(self):
-        self.assertEqual(File_Fetch.source_to_text(self.file_path), 
-        self.file_path)
-        self.assertEqual(File_Fetch.source_to_text(self.file_object2), 
-        self.file_path)
-
-    def test_open(self):
-        fetch_obj = File_Fetch(self.file_object)
-        self.assertEqual(fetch_obj.open(self.file_object), self.file_object)
-        with self.assertRaises(TypeError):
-            # only str and file object allowed as source
-            fetch_obj.open(44)   
-        with self.assertRaises(ValueError):
-            # "path to file" is not path to file
-            fetch_obj.open("path to file")   
+        self.assertEqual(self.fetch_object.source_to_text(self.source), 
+        self.source)
+        source2_text = self.fetch_object.source_to_text(self.source2)
+        self.assertTrue(self.fetch_object.is_source_unknown(source2_text))
 
     def test_is_source_valid(self):
         # is_source_valid() only checks if source is file
-        self.assertTrue(File_Fetch.is_source_valid(self.file_object))
-        self.assertTrue(File_Fetch.is_source_valid(__file__))
-        # "path to file" is not a file
-        self.assertFalse(File_Fetch.is_source_valid("path to file"))
+        self.assertTrue(self.fetch_object.is_source_valid(self.source))
+        self.assertTrue(self.fetch_object.is_source_valid(self.source2))
+        # "path to file" may be a file path but does not exists
+        self.assertFalse(self.fetch_object.is_source_valid("path to file"))
         # this cant be a valid path
-        self.assertFalse(File_Fetch.is_source_valid("path/%$to\/file\//"))
-        with self.assertRaises(TypeError):
-            # only str and file object allowed as source
-            File_Fetch.is_source_valid(44)   
+        self.assertFalse(self.fetch_object.is_source_valid("path/%$to\/file\//"))
 
 
     def test_is_source_active(self):
         # file object is already active
-        self.assertTrue(File_Fetch.is_source_active(self.file_object))
+        self.assertTrue(self.fetch_object.is_source_active(self.source))
         # this file doesnt exists(inactive)
-        self.assertFalse(File_Fetch.is_source_active("not_exists.file"))
-        # this is file is active
-        self.assertTrue(File_Fetch.is_source_active(self.file_path))
-        with self.assertRaises(TypeError):
-            # only str and file object allowed as source
-            File_Fetch.is_source_active(44)   
+        self.assertFalse(self.fetch_object.is_source_active("not_exists.file"))
+        # file object is active on its own
+        self.assertTrue(self.fetch_object.is_source_active(self.source2))
 
-    def test_fetch_to_file(self):
-        self.fetch_obj.fetch_to_file(self.file_path, self.file_object)
-        self.assertGreater(self.file_object.tell(), 0)
+    def test_is_source_unknown(self):
+        with BytesIO() as f:
+            # source text for memory file object is not known
+            # it doesnt have .name attribute
+            self.assertTrue(self.fetch_object.is_source_unknown(f))
+        self.assertFalse(self.fetch_object.is_source_unknown(self.source))
 
-    def test_get_filename(self):
-        self.file_object.write(b'')
-        # temporary file source is unknown
-        # unknown source one is created
-        filename = self.fetch_obj.get_filename(self.file_object)
-        self.assertTrue(self.fetch_obj.is_source_unknown(filename))
-        # for string, the passed string should be returned
-        filename = self.fetch_obj.get_filename(__file__)
-        self.assertEqual(filename, __file__)
 
 if __name__ == '__main__':
     unittest.main()
+    import sys
+    print(sys.path)

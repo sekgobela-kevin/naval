@@ -19,7 +19,9 @@ class HTML_Parse(Parse_Base):
 
     def create_doc(self) -> BeautifulSoup:
         '''Create BeautifulSoup object for parsing HTML'''
-        return BeautifulSoup(self.fetch_obj.get_file(), 'html.parser')
+        fetch_file = self.fetch_obj.get_file()
+        fetch_file.seek(0)
+        return BeautifulSoup(fetch_file, 'html.parser')
 
     def text_to_file(self):
         '''Parses text and store it to self.text_file'''
@@ -27,11 +29,13 @@ class HTML_Parse(Parse_Base):
 
     def html_to_file(self):
         '''Parses html and store it to self.html_file'''
-        self.html_file.write(self.doc.prettify(formatter="html"))
+        format_html = self.doc.prettify(formatter="html")
+        self.html_file.write(format_html.encode(encoding="utf-8"))
 
     def get_title(self) -> str or bytes:
         '''Returns title tag text'''
-        return self.doc.title.get_text()
+        if self.doc.title != None:
+            return self.doc.title.get_text()
 
 
     @classmethod

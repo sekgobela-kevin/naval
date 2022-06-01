@@ -1,8 +1,8 @@
-from io import BytesIO, IOBase
-from .file_fetch import File_Fetch
+from io import BytesIO, FileIO, IOBase
+from .fetch_base import Fetch_Base
 
 
-class String_Fetch(File_Fetch):
+class String_Fetch(Fetch_Base):
     '''Fetches data from string'''
     # specifies if source points to data
     source_locates_data = False
@@ -23,19 +23,16 @@ class String_Fetch(File_Fetch):
         return isinstance(source, str)
 
     @classmethod
-    def is_source_active(cls, source: str) -> bool:
-        '''Checks if source is active\n
-        source - sequence of characters(string)\n'''
-        return cls.is_source_valid(source)
+    def fetch_to_file(cls, source: str, file: FileIO) -> str:
+        if not cls.is_source_valid(source):
+            raise TypeError(f"source should be string not ", type(source))
+        file.write(source.encode())
 
-    @classmethod
-    def open(cls, source: IOBase, encoding='utf8') -> IOBase:
-        file = BytesIO(source.encode(encoding=encoding))
-        return file
 
 
 if __name__ == "__main__":
     fetch_obj = String_Fetch("This is string", content_type=" .txt")
+    fetch_obj.request()
     print(fetch_obj.read())
     # b'This is string' 
     print(fetch_obj.get_content_type())

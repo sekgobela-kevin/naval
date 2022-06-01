@@ -2,6 +2,8 @@ from io import BytesIO, IOBase
 from naval.fetch.fetch_base import Fetch_Base
 from naval.parse.parse_base import Parse_Base
 
+from naval.utility import files
+
 class Common_Tests(object):
     @classmethod
     def setUpClass(cls):
@@ -36,29 +38,31 @@ class Common_Tests(object):
 
     def test_get_text_file(self):
         file_obj = self.parse_obj.get_text_file()
-        self.assertIsInstance(file_obj, IOBase)
+        self.assertTrue(files.is_file_object(file_obj))
+        self.assertTrue(files.is_text(file_obj))
 
     def test_get_html_file(self):
         file_obj = self.parse_obj.get_html_file()
-        self.assertIsInstance(file_obj, IOBase)
+        self.assertTrue(files.is_file_object(file_obj))
+        self.assertTrue(files.is_binary(file_obj))
 
     def test_get_file_copy(self):
         file_obj = BytesIO()
         file_copy = self.parse_obj.get_file_copy(file_obj)
-        file_copy.write("something")
+        file_copy.write(b"something")
         self.assertEqual(file_obj.tell(), 0)
         self.assertGreater(file_copy.tell(), 0)
         file_copy.close()
 
     def test_get_text_file_copy(self):
-        file_obj = self.parse_obj.get_text_file_copy()
-        self.assertIsInstance(file_obj, IOBase)
-        file_obj.close()
+        with self.parse_obj.get_text_file_copy() as f:
+            self.assertTrue(files.is_file_object(f))
+            self.assertTrue(files.is_text(f))
 
     def test_get_html_file_copy(self):
-        file_obj = self.parse_obj.get_html_file_copy()
-        self.assertIsInstance(file_obj, IOBase)
-        file_obj.close()
+        with self.parse_obj.get_html_file_copy() as f:
+            self.assertTrue(files.is_file_object(f))
+            self.assertTrue(files.is_binary(f))
     
     def test_get_fetch(self):
         fetch_obj = self.parse_obj.get_fetch()
@@ -69,14 +73,14 @@ class Common_Tests(object):
     
     def test_get_text(self):
         text = self.parse_obj.get_text()
-        # assertIsInstance would print log text on failure
+        # assertIsInstance would print long text on failure
         self.assertEqual(type(text), str)
         self.assertGreater(len(text), 0)
 
     def test_get_html(self):
         html = self.parse_obj.get_html()
-        # assertIsInstance would print log text on failure
-        self.assertEqual(type(html), str)
+        # assertIsInstance would print long text on failure
+        self.assertEqual(type(html), bytes)
         self.assertGreater(len(html), 0)
 
     def test_get_container(self):

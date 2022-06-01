@@ -1,7 +1,13 @@
 from io import BytesIO, FileIO, IOBase
 import unittest
 import tempfile
-from naval.fetch.master_fetch import *
+
+from naval.fetch.web_fetch import Web_Fetch
+from naval.fetch.file_fetch import File_Fetch
+from naval.fetch.string_fetch import String_Fetch
+from naval.fetch.master_fetch import Master_Fetch
+
+from naval.utility import files
 
 
 class Test_Master_Fetch(unittest.TestCase):
@@ -86,12 +92,12 @@ class Test_Master_Fetch(unittest.TestCase):
             self.assertTrue(Master_Fetch.get_fetch_object(""))
 
     def test_get_file(self):
-        file = Master_Fetch.get_file(self.file_path)
-        # file is returned
-        self.assertIsInstance(file, IOBase)
-        # file should be open
-        self.assertFalse(file.closed)
-        file.close()
+        with Master_Fetch.get_file(self.file_path) as file:
+            # file is returned
+            self.assertTrue(files.is_file_object(file))
+            # file should be open
+            self.assertFalse(file.closed)
+            file.close()
 
     def test_fetch(self):
         # check if data is fetched from source

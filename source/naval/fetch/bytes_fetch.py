@@ -1,8 +1,8 @@
-from io import BytesIO, IOBase
-from .file_fetch import File_Fetch
+from io import BytesIO, IOBase, FileIO
+from .fetch_base import Fetch_Base
 
 
-class Bytes_Fetch(File_Fetch):
+class Bytes_Fetch(Fetch_Base):
     '''Fetches data from bytes'''
     # specifies if source points to data
     source_locates_data = False
@@ -23,18 +23,25 @@ class Bytes_Fetch(File_Fetch):
         return isinstance(source, bytes)
 
     @classmethod
+    def source_to_text(cls, source) -> str:
+        return ascii(source)
+
+    @classmethod
     def is_source_active(cls, source: str) -> bool:
         '''Checks if source is valid\n
         source - sequence of bytes(Bytes obect)\n'''
         return cls.is_source_valid(source)
 
     @classmethod
-    def open(cls, source: IOBase) -> IOBase:
-        file = BytesIO(source)
-        return file
+    def fetch_to_file(cls, source: str, file: FileIO) -> str:
+        if not cls.is_source_valid(source):
+            raise TypeError(f"source should be bytes not ", type(source))
+        file.write(source)
+
 
 if __name__ == "__main__":
     fetch_obj = Bytes_Fetch(b"sequence of bytes", content_type=" .pdf")
+    fetch_obj.request()
     print(fetch_obj.read())
     # b'sequence of bytes'
     print(fetch_obj.get_content_type())

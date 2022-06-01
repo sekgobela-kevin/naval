@@ -1,35 +1,31 @@
 from io import BytesIO
 import unittest
+
 from naval.fetch.string_fetch import String_Fetch
+from .common_tests import Common_Tests
 
 
-class Test_String_Fetch(unittest.TestCase):
-    def setUp(self):
-        self.text = "This is text string"
-        self.html = "<p>This is html pragraph</p>"
-        self.fetch_obj = String_Fetch(self.text)
-        self.fetch_obj2 = String_Fetch(self.html, content_type="html")
-        self.bytes_file = BytesIO()
+class Test_String_Fetch(Common_Tests, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = "This is text string"
+        cls.source2 = "<p>This is html paragraph</p>"
+        
+        cls.fetch_object = String_Fetch(cls.source)
+        cls.fetch_object2 = String_Fetch(cls.source2, content_type="html")
 
-    def tearDown(self):
-        self.fetch_obj.close()
-        self.fetch_obj2.close()
+        cls.bytes_file = BytesIO()
 
     def test_is_source_valid(self) -> bool:
-        self.assertTrue(String_Fetch.is_source_valid(self.text))
+        self.assertTrue(self.fetch_object.is_source_valid(self.source))
         # file object is not supported
-        self.assertFalse(String_Fetch.is_source_valid(self.bytes_file))
+        self.assertFalse(self.fetch_object.is_source_valid(self.bytes_file))
         # bytes not supported
-        self.assertFalse(String_Fetch.is_source_valid(self.text.encode()))
+        self.assertFalse(self.fetch_object.is_source_valid(self.source.encode()))
 
     def test_get_content_type(self):
-        self.assertEqual(self.fetch_obj.get_content_type(), None)
-        self.assertEqual(self.fetch_obj2.get_content_type(), 'text/html')
-
-    def test_read(self):
-        # if this succeeds then everything is doing well
-        # the other tests are covered by test_file_fetch.py
-        self.assertEqual(self.fetch_obj.read().decode(), self.text)
+        self.assertEqual(self.fetch_object.get_content_type(), None)
+        self.assertEqual(self.fetch_object2.get_content_type(), 'text/html')
 
 
 if __name__ == '__main__':

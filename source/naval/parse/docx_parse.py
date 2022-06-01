@@ -36,7 +36,7 @@ class DOCX_Parse(Parse_Base):
     def html_to_file(self):
         '''Parses html and store it to self.html_file'''
         html = PyDocX.to_html(self.fetch_obj.get_file())
-        self.html_file.write(html)
+        self.html_file.write(html.encode(encoding="utf-8"))
         return self.html_file
 
 if __name__ == "__main__":

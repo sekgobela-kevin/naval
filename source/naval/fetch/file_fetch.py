@@ -1,6 +1,8 @@
 import mimetypes
 from ..fetch.fetch_base import Fetch_Base
 from ..utility import directories
+from ..utility import files
+from .. import sources
 
 import tempfile
 import os, sys, io
@@ -21,22 +23,6 @@ class File_Fetch(Fetch_Base):
         return its path or file name'''
         return cls.get_filename(source)
 
-    @classmethod
-    def open(cls, source: str or io.IOBase, *args, **kwargs) -> io.IOBase:
-        '''Opens file and return file object\n
-        source - file object or path to file\n
-        *args- optional arguments to pass to file.open()\n
-        **kwagrs - optional arguments to pass to file.open()\n'''
-        if not isinstance(source, (str, io.IOBase)):
-            raise TypeError("source: should be file obj or string not ", 
-            type(source))
-        if isinstance(source, str):
-            if cls.is_source_valid(source):
-                return open(source, mode="rb", *args, **kwargs)
-            else:
-                raise ValueError(f"source({source}) not pointing to valid file")
-        # then source arg refers to file object
-        return source
 
     @classmethod
     def is_file_path_valid(cls, filePath):
@@ -53,70 +39,83 @@ class File_Fetch(Fetch_Base):
             except OSError:
                 return False
         return True
-    
-    @classmethod
-    def is_source_valid(cls, source: str or io.IOBase) -> bool:
-        '''Checks if source is valid'''
-        if not isinstance(source, (str, io.IOBase)):
-            raise TypeError("file should be file obj or string not ", type(source))
-        if isinstance(source, io.IOBase):
-            # file object is valid on its own
-            return True
-        elif cls.is_source_unknown(source):
-            # source was autotimatially created
-            # it was validated before it got created
-            return True
-        # if all the above fails, then source might be file path
-        return os.path.isfile(source)
 
     @classmethod
-    def is_source_active(cls, source: str) -> bool:
-        '''Checks if data in source is accessible'''
-        if not isinstance(source, (str, io.IOBase)):
-            raise TypeError("file should be file obj or string not ", type(source))
-        if isinstance(source, io.IOBase):
-            # file object is active on its own
+    def is_file_object(cls, source):
+        # file objects inherits IOBase
+        return files.is_file_object(source)
+
+    @classmethod
+    def is_file_path(cls, source):
+        # validate file path
+        if isinstance(source, (str, bytes)):
+            if os.path.isfile(source):
+                return True
+            return sources.is_local_file(source)
+        else:
+            return False
+
+    @classmethod
+    def is_source_valid(cls, source):
+        '''Checks if source is valid file object or file path'''
+        # source becomes valid if is a file path or file like object
+        # only existing file paths are valid
+        # its harder to know if str or bytes file path
+        # imagine 'employees' file, who could know if thats a file path
+        # but 'employees.txt' can be detected as it has extension
+        return cls.is_file_object(source) or os.path.isfile(source)
+
+    @classmethod
+    def is_source_active(cls, source):
+        '''Checks if source is active file object or file path'''
+        if cls.is_file_path(source):
+            return os.path.isfile(source)
+        elif cls.is_file_object(source):
             return True
-        # get string version of source incase source is file object
-        source = cls.get_filename(source)
-        # its possible that data in file not be readable
-        # os.access() may be better
-        return os.path.isfile(source)
+        else:
+            err_msg = f"source({source}) is not valid file path or file like object"
+            raise TypeError(err_msg)
+
+    @classmethod
+    def fetch_to_file(cls, source, dest_file):
+        '''Read contents of source(file path) to destination file'''
+        # dest_file is expected to be binary
+        if cls.is_file_path(source):
+            with open(source, mode="rb") as f:
+                dest_file.writelines(f)
+        elif cls.is_file_object(source):
+            # source is already file object
+            # copy its contents to dest_file
+            source.seek(0)
+            for line in source:
+                # handle exception if files opended in different modes
+                # writing bytes to text file would raise errors
+                try:
+                    dest_file.write(line)
+                except TypeError:
+                    dest_file.write(line.encode(encoding="utf-8"))
+        else:
+            # else the source is not valid(invalid file path or wrong type)
+            err_msg = f"source({source}) is not valid file path or file like object"
+            raise TypeError(err_msg)
+
 
     @classmethod
     def get_filename(cls, source: io.IOBase or str):
         '''Creates filename from path or file object\n
         source - file object or path to file'''
-        if not isinstance(source, (str, io.IOBase)):
-            TypeError("source should be file obj or string not ", type(source))
-        if isinstance(source, str): 
+        if cls.is_file_path(source): 
             return source
-        elif "name" in dir(source):
-            if isinstance(source.name, (str)):
+        elif cls.is_file_object(source):
+            try:
                 return source.name
-        return cls.get_unknown_source()
-
-    @classmethod
-    def fetch_to_file(cls, source: str, file: io.FileIO) -> str:
-        '''Fetch data from source to file and return file object\n
-        source - file path or file like object\n
-        file - file like object to store data'''
-        source_file = cls.open(source)
-        source_file.seek(0)
-        # its not worth to write to same file
-        # this checks if source and file are not same based on filename
-        if cls.get_filename(source) != cls.get_filename(file):
-            file.writelines(source_file)
-            # close file if its not file like object
-            if not isinstance(source, io.IOBase):
-                source_file.close()
-        return file
-
-    def request(self, *args, **kwarg) -> io.IOBase:
-        '''Read data from file path and return file object'''
-        # file already has data
-        # no need to request for data
-        return self.file
+            except AttributeError:
+                # file like object without name
+                # its likely to be StringIO or BytesIO
+                return cls.get_unknown_source()
+        else:
+            err_msg = f"source({source}) is not valid file path or file like object"
+            raise TypeError(err_msg)
 
 
 if __name__ == "__main__":

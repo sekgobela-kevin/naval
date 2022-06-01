@@ -180,11 +180,15 @@ def extract_text_to_file(parse_input, dest_file, **kwargs) -> str:
     # get_parse_object() returns parse object with file closed
     # __del__ was called as end of function was reached
     # solution is to use context managers(with statement)
-    dest_file_obj = files.get_file_object(dest_file, mode="w")
-    dest_file_obj.write(extract_text(parse_input, **kwargs))
+    dest_file_obj = files.get_file_object(dest_file, mode="w+")
+    extracted_text = extract_text(parse_input, **kwargs)
+    try:
+        dest_file_obj.write(extracted_text)
+    except TypeError:
+        dest_file_obj.write(extracted_text.encode(encoding="utf-8"))
     # close file if dest_file argument is not file like object
     # users will manually close the file object
-    if not isinstance(dest_file, IOBase):
+    if not files.is_file_object(dest_file):
         dest_file_obj.close()
 
 def extract_html_to_file(parse_input, dest_file, **kwargs) -> str:
@@ -195,11 +199,16 @@ def extract_html_to_file(parse_input, dest_file, **kwargs) -> str:
     e.g url, file path, default True.\n
     content_type(optional) - content type of data to be fetched. E.g 
     html, .html or text/html. Default is None'''
-    dest_file_obj = files.get_file_object(dest_file, mode="w")
-    dest_file_obj.write(extract_html(parse_input, **kwargs))
+    dest_file_obj = files.get_file_object(dest_file, mode="w+b")
+    # extracted_html is bytes
+    extracted_html = extract_html(parse_input, **kwargs)
+    try:
+        dest_file_obj.write(extracted_html)
+    except TypeError:
+        dest_file_obj.write(extracted_html.decode(encoding="utf-8"))
     # close file if dest_file argument is not file like object
     # users will manually close the file object
-    if not isinstance(dest_file, IOBase):
+    if not files.is_file_object(dest_file):
         dest_file_obj.close()
 
 

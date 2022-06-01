@@ -3,8 +3,8 @@ import tempfile
 import mimetypes
 import shutil
 
-from ..utility.container import Container
 from ..fetch.fetch_base import Fetch_Base
+from ..utility import files
 
 class Parse_Base():
     '''Base class for parsing fetch object into text, html or 
@@ -30,10 +30,10 @@ class Parse_Base():
         #self.doc = self.create_doc()
         self.doc = self.create_doc()
         # file object to store extracted text 
-        self.text_file = self.create_file(False, mode="w+")
+        self.text_file = self.create_file(False, mode="w+", encoding="utf-8")
         # file object to store extracted HTML
         # this file is opened in binary mode
-        self.html_file = self.create_file(False, mode="w+")
+        self.html_file = self.create_file(False, mode="w+b")
         # files should always be opened in text mode
         # fetch object files be opened in binary mode
 
@@ -78,7 +78,7 @@ class Parse_Base():
                 return BytesIO()
             return StringIO()
         # files should always be opened in text mode
-        return tempfile.TemporaryFile(**kwarg)
+        return tempfile.SpooledTemporaryFile(**kwarg)
 
     def is_file_empty(self, file):
         '''Chcks if file object is empty'''
@@ -110,8 +110,11 @@ class Parse_Base():
     def get_file_copy(file_obj):
         '''Returns copy of file kept by the object'''
         # its contents are copied to temp file
-        temp_file = tempfile.TemporaryFile(mode='w+')
-        shutil.copyfileobj(file_obj, temp_file)
+        if files.is_binary(file_obj): 
+            temp_file = tempfile.TemporaryFile(mode="w+b")
+        else:
+            temp_file = tempfile.TemporaryFile(mode="w+", encoding="utf-8")
+        files.copy_file(file_obj, temp_file)
         return temp_file
 
     def get_text_file_copy(self):
@@ -148,21 +151,22 @@ class Parse_Base():
         self.html_file.seek(0)
         return self.html_file.read(*args, **kwargs)
 
-    def get_container(self) -> Container:
-        '''Retuns fetch object represented as container'''
-        raise NotImplementedError
-
-    @staticmethod
-    def text_to_container(text) -> Container:
-        '''Converts text to container(sections)'''
-
-    @staticmethod
-    def html_to_container(text) -> Container:
-        '''Converts text to container(sections)'''
+    def close(self):
+        try:
+            self.text_file.close()
+            self.html_file.close()
+        finally:
+            self.text_file.close()
+            self.html_file.close()
 
     def __del__(self):
-        self.text_file.close()
-        self.html_file.close()
+        # its better to use contenxt manager than __del__()
+        # this needs to be replaced with __enter__ and __exit__(with)
+        try:
+            self.close()
+        except AttributeError:
+            pass
+
 
 
 if __name__ == "__main__":

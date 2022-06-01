@@ -3,13 +3,16 @@ import os, sys, io
 import time
 import tempfile
 import shutil
+import random
+
+from ..utility import files
 
 class Fetch_Base():
     '''Base class for fetching raw data from source(url, path, etc).
     Data from source is stored in file after fetched from its source.'''
     # to be assigned for source text if not known
     unknown_prefix = "__unknown"
-    unknown_source_prefix = f"{unknown_prefix}_source"
+    unknown_source_prefix = f"{unknown_prefix}_source_text"
     unknown_tile_prefix = f"{unknown_prefix}_title"
 
     # specifies if source points to data
@@ -91,17 +94,15 @@ class Fetch_Base():
         source - url, filepath, file object, etc\n
         content_type - string in form e.g 'text/', '.html', 
         'html', 'text/plain' or 'file.txt'''
-        text_source = cls.source_to_text(source)
         source_content_type = cls.transform_content_type(content_type)
         # try content_type argument else guess from source
         if source_content_type:
             return source_content_type
-        return cls.source_to_content_type(text_source)
+        return cls.source_to_content_type(source)
 
 
     def get_file(self):
         '''Returns file object kept by this object'''
-        self.file.seek(0)
         return self.file
 
     def get_file_copy(self):
@@ -109,7 +110,6 @@ class Fetch_Base():
         # its contents are copied to temp file
         temp_file = tempfile.TemporaryFile(mode='w+b')
         shutil.copyfileobj(self.file, temp_file)
-        temp_file.seek(0)
         return temp_file
 
     def is_empty(self):
@@ -144,15 +144,16 @@ class Fetch_Base():
         right_part = ""
         for arg in args:
             right_part += arg
-        return f"{cls.unknown_source_prefix}_{right_part}_{time.time()}"
+        time_seconds = int(time.time())
+        random_int = random.randint(1, time_seconds)
+        random_part = time_seconds + random_int
+        return f"{cls.unknown_source_prefix}_{right_part}_{random_part}"
 
     @classmethod
     def is_source_unknown(cls, source: str):
         '''Checks if source text was auto generated\n
         source - url, filepath, file object, etc\n'''
-        if not isinstance(source, str):
-            TypeError("source should be string not ", type(source))
-        return cls.unknown_source_prefix in source
+        return cls.unknown_source_prefix in cls.source_to_text(source)
 
 
     def read(self, *args, **kwagrs) -> str:
@@ -192,9 +193,28 @@ class Fetch_Base():
         return self.file
 
 
+    def clear(self):
+        '''Removes fetched data'''
+        self.file.seek(0)
+        self.file.truncate(0)
+
+
     def close(self):
         '''Closes file opened by the object'''
-        self.file.close()
+        try:
+            self.file.close()
+        finally:
+            # close files if there are errors
+            # there may be errors in constructor(__init__)
+            self.file.close()
 
     def __del__(self):
-        self.file.close()
+        # its better to use contenxt manager than __del__()
+        # this needs to be replaced with __enter__ and __exit__(with)
+        try:
+            self.close()
+        except AttributeError:
+            pass
+
+
+        

@@ -10,6 +10,8 @@ from naval.parse.text_parse import Text_Parse
 from naval.parse.pdf_parse import PDF_Parse
 from naval.parse.master_parse import Master_Parse
 
+from naval.utility import files
+
 
 class Test_Master_Parse(unittest.TestCase):
     @classmethod
@@ -59,18 +61,18 @@ class Test_Master_Parse(unittest.TestCase):
 
     def test_get_html(self):
         html = Master_Parse.get_html(self.pdf_fetch)
-        self.assertEqual(type(html), str)
+        self.assertEqual(type(html), bytes)
         self.assertGreater(len(html), 0)
 
     def test_get_text_file(self):
         file_obj = Master_Parse.get_text_file(self.text_fetch)
-        self.assertIsInstance(file_obj, IOBase)
+        self.assertTrue(files.is_file_object(file_obj))
         self.assertGreater(file_obj.tell(), 0)
         file_obj.close()
 
     def test_get_html_file(self):
         file_obj = Master_Parse.get_html_file(self.pdf_fetch)
-        self.assertIsInstance(file_obj, IOBase)
+        self.assertTrue(files.is_file_object(file_obj))
         self.assertGreater(file_obj.tell(), 0)
         file_obj.close()
 
