@@ -66,9 +66,6 @@ with open("sample_file.pdf", mode="rb") as file:
 ```
 > See [examples/](https://github.com/Sekgobela-Kevin/naval/tree/main/examples) folder for more examples
 
-### Support
-Feel free to open an issue or contact me on [kevinnoko23@gmail.com](mailto:kevinnoko23@gmail.com).  
-
 ### Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 > Dont forget to update tests.  
