@@ -22,6 +22,7 @@ class Fetch(Fetch_Base):
         html, .html or text/html. Default is None'''
         # create fetch object for source
         self.fetch_class = get_fetch_class(source, source_locates_data)
+        self.source_locates_data=source_locates_data
 
         # this was taken from Fetch_Base __init__()
         # super().__init__() would raise errors sometimes
@@ -86,12 +87,18 @@ class Fetch(Fetch_Base):
         return Master_Fetch.is_source_active(source, source_locates_data)
 
     @classmethod
-    def fetch_to_file(cls, source, file: io.IOBase, source_locates_data=True):
+    def fetch_to_file(cls, source, file: io.IOBase, source_locates_data=True,
+    **kwars):
         '''Fetch data from source to file and return file object\n
         source - url, filepath, file object, etc'''
         fetch_class = get_fetch_class(source, source_locates_data)
-        return fetch_class.fetch_to_file(source, file)
+        return fetch_class.fetch_to_file(source, file, **kwars)
 
+    def request(self, **kwarg) -> io.IOBase:
+        '''Read data from file path and return file object\n
+        **kwarg - optional arguments to pass to .fetch_to_file()'''
+        super().request(source_locates_data=self.source_locates_data, **kwarg)
+        
     def get_fetch_class(self):
         '''Returns underlying fetch class of the object'''
         return self.fetch_class

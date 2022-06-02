@@ -51,7 +51,7 @@ print(fetch_obj.get_content_type())
 # our html is our content(data) not resource locator(file path, url, etc)
 html = "<p> this is html paragraph</a>"
 # its also worth to provide content type(useful when parsing)
-fetch_obj = Fetch(html, source_locates_data=False)
+fetch_obj = Fetch(html, source_locates_data=False, content_type="text/html")
 # always call .request() else fetch object wont contain data
 fetch_obj.request()
 print(fetch_obj.read())

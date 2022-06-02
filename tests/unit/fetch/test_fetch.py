@@ -5,6 +5,7 @@ import tempfile, os
 from naval.fetch.fetch import Fetch
 from naval.fetch.fetch_base import Fetch_Base
 from naval.fetch.file_fetch import File_Fetch
+from naval.fetch.string_fetch import String_Fetch
 
 from .common_tests import Common_Tests
 
@@ -14,9 +15,14 @@ class Test_Fetch(Common_Tests, unittest.TestCase):
     def setUpClass(cls):
         cls.source = os.path.join("samples", "sample_file.txt")
         cls.source2 = BytesIO()
+        cls.source3 = "<div> division </div>"
 
         cls.fetch_object = Fetch(cls.source)
         cls.fetch_object2 = Fetch(cls.source2)
+        cls.fetch_object3 = Fetch(cls.source3, source_locates_data=False,
+        content_type="html")
+        # let see if theres an error(fetch class not found)
+        cls.fetch_object3.request()
 
         cls.html = "<div> division </div>"
 
@@ -41,8 +47,9 @@ class Test_Fetch(Common_Tests, unittest.TestCase):
         # this file doesnt exists(inactive)
         self.assertFalse(self.fetch_object.is_source_active("not_exists.file"))
         self.assertFalse(self.fetch_object.is_source_active(self.html))
-        valid = self.fetch_object.is_source_active(self.html, source_locates_data=False)
-        self.assertTrue(valid)
+        isvalid = self.fetch_object.is_source_active(self.html, 
+        source_locates_data=False)
+        self.assertTrue(isvalid)
 
     def test_fetch_to_file(self):
         self.fetch_object.fetch_to_file(self.source, self.source2)
