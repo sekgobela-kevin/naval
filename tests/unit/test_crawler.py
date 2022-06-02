@@ -77,7 +77,7 @@ class Test_Download_Functions(unittest.TestCase):
 
 
     def test_download_all(self):
-        download_all(self.folder_path, self.urls)
+        download_all(self.urls, self.folder_path)
         file_paths = directories.get_file_paths(self.folder_path)
         # 2 files should be downloaded
         self.assertEqual(len(file_paths), 2)
