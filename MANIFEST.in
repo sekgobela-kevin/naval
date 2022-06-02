@@ -5,5 +5,6 @@ include README.md
 
 graft tests
 graft examples
+graft samples
 graft docs
 graft source
