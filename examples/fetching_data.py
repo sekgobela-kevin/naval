@@ -14,8 +14,8 @@ text_file_path = os.path.join("files", "sample_file.txt")
 def download(url):
     # this only creates the object without fecthing data
     fetch_obj = Fetch(url)
+    # .request() is requests for data
     fetch_obj.request()
-    fetch_obj.get_file().seek(0)
     # reads fetched data bytes
     return fetch_obj.read()
 
@@ -52,6 +52,8 @@ print(fetch_obj.get_content_type())
 html = "<p> this is html paragraph</a>"
 # its also worth to provide content type(useful when parsing)
 fetch_obj = Fetch(html, source_locates_data=False)
+# always call .request() else fetch object wont contain data
+fetch_obj.request()
 print(fetch_obj.read())
 # b'<p> this is html paragraph</a>'
 
@@ -68,6 +70,8 @@ fetch_obj = Fetch("http://example.com/")
 
 # performs request for data
 # relevant for urls or data located on web
+# call it everytime to avoid problems
+# it wont request if data is already available
 fetch_obj.request()
 
 # returns the url "http://example.com/"
@@ -113,7 +117,7 @@ def download_webpage(url):
     '''Example that download webpage data'''
     fetch_obj = Fetch(url)
     # dont forget to request for data
-    # error will be raised if it fails to fetch data
+    # error may be raised if it fails to fetch data
     fetch_obj.request()
     #fetch_obj.get_file().seek(0)
     # no need to seek the file
@@ -125,8 +129,7 @@ webpage_html = download_webpage("http://example.com/")
 
 def read_file(file_path):
     fetch_obj = Fetch(file_path)
-    # no need to request
-    # fetch_obj.get_file() points to file in path
+    fetch_obj.request()
     return fetch_obj.read()
 
 pdf_bytes = read_file(pdf_file_path)
@@ -136,6 +139,7 @@ pdf_bytes = read_file(pdf_file_path)
 def read_file_like_obj(file_obj):
     # file like object is also supported
     fetch_obj = Fetch(file_obj)
+    fetch_obj.request()
     return fetch_obj.read()
 
 

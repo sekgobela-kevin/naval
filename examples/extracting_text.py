@@ -3,9 +3,16 @@ import os
 import naval
 
 
+# initialises file paths to use
 pdf_file_path = os.path.join("files", "sample_file.pdf")
 html_file_path = os.path.join("files", "sample_file.html")
 text_file_path = os.path.join("files", "sample_file.txt")
+
+# creates 'downloads' folder in same dir
+folder_path = os.path.split(os.path.abspath(__file__))[0]
+downloads_path = os.path.join(folder_path, "downloads")
+if not os.path.exists(downloads_path):
+    os.makedirs(downloads_path)
 
 
 html = '''
@@ -65,14 +72,18 @@ with open(pdf_file_path, "rb") as file_object:
 # -----------------------------------------------
 
 # extract text from pdf to file in path
-naval.extract_text_to_file(html_file_path, "html_output.txt")
+output_file_path = os.path.join(downloads_path, "html_output.txt")
+naval.extract_text_to_file(html_file_path, output_file_path)
+
 # extract text into file in memory
 file_object = StringIO()
 naval.extract_text_to_file(html_file_path, file_object)
 
 
 # extract html from pdf to file in path
-naval.extract_html_to_file(pdf_file_path, "output.html")
+output_file_path = os.path.join(downloads_path, "output.html")
+naval.extract_html_to_file(pdf_file_path, output_file_path)
+
 # extract html into file in memory
 file_object = StringIO()
 naval.extract_html_to_file(pdf_file_path, file_object)

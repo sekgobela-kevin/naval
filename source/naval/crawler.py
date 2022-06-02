@@ -83,10 +83,10 @@ def download(url: str, file: str or IOBase) -> None:
     # one in fetch object and one in this function
     # it takes 2 opened files to complete the function
 
-def download_all(folder_path: str, urls: List[str]) -> None:
+def download_all(urls: List[str], folder_path: str) -> None:
     '''Download data from urls into folder\n
-    folder_path - Folder to download into\n
-    urls - list of urls'''
+    urls - list of urls\n
+    folder_path - folder to download into\n'''
     if not os.path.isdir(folder_path):
         raise Exception(f"folder_path{folder_path} is not folder")
     for url in urls:

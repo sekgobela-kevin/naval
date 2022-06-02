@@ -20,6 +20,7 @@ def extract_text_from_fetch_object(fetch_object):
         err_msg = "fetch_object is not instance of Fetch class"
         raise Exception(err_msg, type(fetch_object))
     # this creates object for parsing data
+    # fetch_object.request() will be called for you
     parse_obj = Parse(fetch_object)
     return parse_obj.get_text()
 
@@ -35,7 +36,6 @@ def extract_html_from_fetch_object(fetch_object):
 
 # creates fetch object and request for data
 fetch_object = Fetch(html_file_path)
-fetch_object.request()
 # let the function handle everything
 text = extract_text_from_fetch_object(fetch_object)
 #print(text)
